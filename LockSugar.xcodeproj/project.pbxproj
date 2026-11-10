@@ -7,9 +7,38 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0533D0FCF100627F1879470E /* LockSugarCircularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA3499585112A723204EF0F /* LockSugarCircularView.swift */; };
+		08B8DC06F4B5865C3435327D /* LockSugarInlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AF96AFDA8EF1711AAD8DC4 /* LockSugarInlineView.swift */; };
+		0B6E7154FD6E8D97C1769816 /* SharedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65623AA06ED550DD61C27B1C /* SharedStorage.swift */; };
 		0BAA9C626CF4711B6C9A6103 /* LockSugarWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9A367595782765F550E5CF53 /* LockSugarWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		119BF9B0BA597DB8A01B34CF /* LockSugarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F955C906CBA9F49D1C7D72C3 /* LockSugarApp.swift */; };
 		153407DEB6FD05AE6F556447 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 09A57F10CEDEFE6B663D08F4 /* Assets.xcassets */; };
+		180069A644B169A93CC0554F /* LibreLinkUpClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5093B2A83B09727A76D86493 /* LibreLinkUpClient.swift */; };
+		1A107F56F17D701510AD393A /* LockSugarRectangularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8C8307D2DB9148DCE2F297 /* LockSugarRectangularView.swift */; };
+		24F3F167CFDA20979CEA4333 /* LibreLinkUpResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE42ACE8637B2D3CFED4CCD /* LibreLinkUpResponses.swift */; };
+		2C695E09DB56EDBDF5411414 /* LibreLinkUpClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5093B2A83B09727A76D86493 /* LibreLinkUpClient.swift */; };
+		3074037CDA4522B7702D68D3 /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F624EF8E942E759674DAA8F /* CryptoUtils.swift */; };
 		3139CC24A9FA5361FA58CF18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EBB75D8186B9E2242DF49F23 /* Assets.xcassets */; };
+		350E9DE4B28D79FB15848AD4 /* WidgetSetupInstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F1D90B68641411DD401EDB /* WidgetSetupInstructionsView.swift */; };
+		3B1752D857BFDFDF0785825B /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12ED22B90876ACB7EAF747A3 /* AppViewModel.swift */; };
+		5EBB8C2775B1AEC03A51D8AD /* LibreLinkUpResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE42ACE8637B2D3CFED4CCD /* LibreLinkUpResponses.swift */; };
+		6584A352825B3FF80BF51692 /* GlucoseReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02810BCFE26B0C8140BCD629 /* GlucoseReading.swift */; };
+		71F8B2E61BED5B75E7EB6000 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB60BDF8D6D36C993136551 /* KeychainHelper.swift */; };
+		7B1F717118D0BE12E59CD251 /* SharedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65623AA06ED550DD61C27B1C /* SharedStorage.swift */; };
+		8A042371E11B17118F6C16B6 /* SharedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65623AA06ED550DD61C27B1C /* SharedStorage.swift */; };
+		8E679996DAE95F53638450BA /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F624EF8E942E759674DAA8F /* CryptoUtils.swift */; };
+		9110FB2A8BB5DACC47463225 /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC59EC39F9CECDEAD6F5B60D /* MockURLProtocol.swift */; };
+		9365B3BBD96E7F450D8B605B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F581406766881AF9C6197F /* ContentView.swift */; };
+		9CB73ED639966282411D97C5 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B709375EECB2AD1A7B9F04 /* main.swift */; };
+		9D3B3AE97B29DB31B851D9AD /* CryptoUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F624EF8E942E759674DAA8F /* CryptoUtils.swift */; };
+		9EDBD200666DD86D91F23989 /* LibreLinkUpResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE42ACE8637B2D3CFED4CCD /* LibreLinkUpResponses.swift */; };
+		A0C75A1A36ADB574B49F0C9D /* GlucoseReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02810BCFE26B0C8140BCD629 /* GlucoseReading.swift */; };
+		A342997379B8BAB270BD8B19 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB60BDF8D6D36C993136551 /* KeychainHelper.swift */; };
+		C52F32AFF616864672E4F1CB /* GlucoseReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02810BCFE26B0C8140BCD629 /* GlucoseReading.swift */; };
+		C68D452B8AF5C056FC5D0C46 /* LockSugarWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3CD2494A83E2270457FC23E /* LockSugarWidgetBundle.swift */; };
+		C8D42362C6DCB72055789058 /* LockSugarWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA547C759F68582A788A0A /* LockSugarWidget.swift */; };
+		DB3FE8AB1AAC6B3202F6AE07 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB60BDF8D6D36C993136551 /* KeychainHelper.swift */; };
+		F703878382498CAC9E538BB5 /* LibreLinkUpClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5093B2A83B09727A76D86493 /* LibreLinkUpClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,24 +73,53 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		02810BCFE26B0C8140BCD629 /* GlucoseReading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseReading.swift; sourceTree = "<group>"; };
+		06AF96AFDA8EF1711AAD8DC4 /* LockSugarInlineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarInlineView.swift; sourceTree = "<group>"; };
 		07CB5E55B2347BB6D0402CBB /* LockSugarWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LockSugarWidget.entitlements; sourceTree = "<group>"; };
 		09A57F10CEDEFE6B663D08F4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0BC9FEC531F7601162EE9D2F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		12ED22B90876ACB7EAF747A3 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		1F6087CE288725370AD291DC /* LockSugarTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LockSugarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		48B709375EECB2AD1A7B9F04 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		4FBA547C759F68582A788A0A /* LockSugarWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarWidget.swift; sourceTree = "<group>"; };
+		5093B2A83B09727A76D86493 /* LibreLinkUpClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibreLinkUpClient.swift; sourceTree = "<group>"; };
 		52373503FB1EE240B847F727 /* LockSugar.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LockSugar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		65623AA06ED550DD61C27B1C /* SharedStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedStorage.swift; sourceTree = "<group>"; };
+		6BA3499585112A723204EF0F /* LockSugarCircularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarCircularView.swift; sourceTree = "<group>"; };
+		7F624EF8E942E759674DAA8F /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
+		8A8C8307D2DB9148DCE2F297 /* LockSugarRectangularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarRectangularView.swift; sourceTree = "<group>"; };
 		9A367595782765F550E5CF53 /* LockSugarWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LockSugarWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1F1D90B68641411DD401EDB /* WidgetSetupInstructionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSetupInstructionsView.swift; sourceTree = "<group>"; };
 		C35897AA5AF05538A1843BAD /* LockSugar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LockSugar.entitlements; sourceTree = "<group>"; };
+		C6F581406766881AF9C6197F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		DC59EC39F9CECDEAD6F5B60D /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
+		E3CD2494A83E2270457FC23E /* LockSugarWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarWidgetBundle.swift; sourceTree = "<group>"; };
+		EBB60BDF8D6D36C993136551 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		EBB75D8186B9E2242DF49F23 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		ECE42ACE8637B2D3CFED4CCD /* LibreLinkUpResponses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibreLinkUpResponses.swift; sourceTree = "<group>"; };
+		F955C906CBA9F49D1C7D72C3 /* LockSugarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarApp.swift; sourceTree = "<group>"; };
 		FFF709D907028C5EDFD2A202 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		01E9F216D2CC17EB6299C5F7 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				02810BCFE26B0C8140BCD629 /* GlucoseReading.swift */,
+				ECE42ACE8637B2D3CFED4CCD /* LibreLinkUpResponses.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		2049FD569181C15FAEEFD957 /* LockSugar */ = {
 			isa = PBXGroup;
 			children = (
 				EBB75D8186B9E2242DF49F23 /* Assets.xcassets */,
 				FFF709D907028C5EDFD2A202 /* Info.plist */,
 				C35897AA5AF05538A1843BAD /* LockSugar.entitlements */,
+				F955C906CBA9F49D1C7D72C3 /* LockSugarApp.swift */,
+				D05CEABDAE3A6844E1ED3470 /* ViewModels */,
+				A6BE76EB9D548145FC728E0D /* Views */,
 			);
 			path = LockSugar;
 			sourceTree = "<group>";
@@ -69,6 +127,9 @@
 		2F703046761CA9BBD125B830 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				01E9F216D2CC17EB6299C5F7 /* Models */,
+				6A0DF80CAD5C9CC45497BEA9 /* Network */,
+				F746C53B33FA0E5A46646367 /* Storage */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -79,8 +140,20 @@
 				09A57F10CEDEFE6B663D08F4 /* Assets.xcassets */,
 				0BC9FEC531F7601162EE9D2F /* Info.plist */,
 				07CB5E55B2347BB6D0402CBB /* LockSugarWidget.entitlements */,
+				4FBA547C759F68582A788A0A /* LockSugarWidget.swift */,
+				E3CD2494A83E2270457FC23E /* LockSugarWidgetBundle.swift */,
+				C8746DCE3EBC01F8426438F5 /* Views */,
 			);
 			path = LockSugarWidget;
+			sourceTree = "<group>";
+		};
+		6A0DF80CAD5C9CC45497BEA9 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				7F624EF8E942E759674DAA8F /* CryptoUtils.swift */,
+				5093B2A83B09727A76D86493 /* LibreLinkUpClient.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 		6DDB88C5BEA54BD09D6B11A6 /* Products */ = {
@@ -104,11 +177,49 @@
 			);
 			sourceTree = "<group>";
 		};
+		A6BE76EB9D548145FC728E0D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C6F581406766881AF9C6197F /* ContentView.swift */,
+				C1F1D90B68641411DD401EDB /* WidgetSetupInstructionsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C8746DCE3EBC01F8426438F5 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6BA3499585112A723204EF0F /* LockSugarCircularView.swift */,
+				06AF96AFDA8EF1711AAD8DC4 /* LockSugarInlineView.swift */,
+				8A8C8307D2DB9148DCE2F297 /* LockSugarRectangularView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D05CEABDAE3A6844E1ED3470 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				12ED22B90876ACB7EAF747A3 /* AppViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		EEA19A8FA8901F086357E14B /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				48B709375EECB2AD1A7B9F04 /* main.swift */,
+				DC59EC39F9CECDEAD6F5B60D /* MockURLProtocol.swift */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		F746C53B33FA0E5A46646367 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				EBB60BDF8D6D36C993136551 /* KeychainHelper.swift */,
+				65623AA06ED550DD61C27B1C /* SharedStorage.swift */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -226,6 +337,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3074037CDA4522B7702D68D3 /* CryptoUtils.swift in Sources */,
+				6584A352825B3FF80BF51692 /* GlucoseReading.swift in Sources */,
+				71F8B2E61BED5B75E7EB6000 /* KeychainHelper.swift in Sources */,
+				180069A644B169A93CC0554F /* LibreLinkUpClient.swift in Sources */,
+				9EDBD200666DD86D91F23989 /* LibreLinkUpResponses.swift in Sources */,
+				9110FB2A8BB5DACC47463225 /* MockURLProtocol.swift in Sources */,
+				7B1F717118D0BE12E59CD251 /* SharedStorage.swift in Sources */,
+				9CB73ED639966282411D97C5 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,6 +352,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E679996DAE95F53638450BA /* CryptoUtils.swift in Sources */,
+				A0C75A1A36ADB574B49F0C9D /* GlucoseReading.swift in Sources */,
+				A342997379B8BAB270BD8B19 /* KeychainHelper.swift in Sources */,
+				F703878382498CAC9E538BB5 /* LibreLinkUpClient.swift in Sources */,
+				24F3F167CFDA20979CEA4333 /* LibreLinkUpResponses.swift in Sources */,
+				0533D0FCF100627F1879470E /* LockSugarCircularView.swift in Sources */,
+				08B8DC06F4B5865C3435327D /* LockSugarInlineView.swift in Sources */,
+				1A107F56F17D701510AD393A /* LockSugarRectangularView.swift in Sources */,
+				C8D42362C6DCB72055789058 /* LockSugarWidget.swift in Sources */,
+				C68D452B8AF5C056FC5D0C46 /* LockSugarWidgetBundle.swift in Sources */,
+				8A042371E11B17118F6C16B6 /* SharedStorage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,6 +370,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B1752D857BFDFDF0785825B /* AppViewModel.swift in Sources */,
+				9365B3BBD96E7F450D8B605B /* ContentView.swift in Sources */,
+				9D3B3AE97B29DB31B851D9AD /* CryptoUtils.swift in Sources */,
+				C52F32AFF616864672E4F1CB /* GlucoseReading.swift in Sources */,
+				DB3FE8AB1AAC6B3202F6AE07 /* KeychainHelper.swift in Sources */,
+				2C695E09DB56EDBDF5411414 /* LibreLinkUpClient.swift in Sources */,
+				5EBB8C2775B1AEC03A51D8AD /* LibreLinkUpResponses.swift in Sources */,
+				119BF9B0BA597DB8A01B34CF /* LockSugarApp.swift in Sources */,
+				0B6E7154FD6E8D97C1769816 /* SharedStorage.swift in Sources */,
+				350E9DE4B28D79FB15848AD4 /* WidgetSetupInstructionsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

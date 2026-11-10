@@ -351,4 +351,22 @@ await runAsyncTest("LibreLinkUpClient.silentTokenRenewal") {
     assertEqual(storage.cachedGlucoseReading?.formattedValue, "115")
 }
 
+runTest("TimelineScheduler.calculateNextReloadDate") {
+    let now = Date()
+    // 1. Fresh measurement: 1 minute ago -> next reload should be now - 1m + 5m 15s = now + 4m 15s
+    let measurement1MinAgo = now.addingTimeInterval(-60)
+    let reload1 = TimelineScheduler.calculateNextReloadDate(for: measurement1MinAgo, from: now)
+    let expected1 = measurement1MinAgo.addingTimeInterval(5 * 60 + 15)
+    assertEqual(Int(reload1.timeIntervalSince(now)), Int(expected1.timeIntervalSince(now)))
+    
+    // 2. Old measurement: 10 minutes ago -> target reload (now - 10m + 5m 15s) is in the past -> fallback to now + 5 min
+    let oldMeasurement = now.addingTimeInterval(-10 * 60)
+    let reloadOld = TimelineScheduler.calculateNextReloadDate(for: oldMeasurement, from: now)
+    assertEqual(Int(reloadOld.timeIntervalSince(now)), 5 * 60)
+    
+    // 3. Nil measurement -> fallback to now + 5 min
+    let reloadNil = TimelineScheduler.calculateNextReloadDate(for: nil, from: now)
+    assertEqual(Int(reloadNil.timeIntervalSince(now)), 5 * 60)
+}
+
 print("=== All Tests Passed Successfully ===")

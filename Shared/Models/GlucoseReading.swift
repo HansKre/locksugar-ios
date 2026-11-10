@@ -115,3 +115,22 @@ public struct GlucoseReading: Codable, Equatable {
         )
     }
 }
+
+public enum TimelineScheduler {
+    /// Intelligent timeline reload calculation:
+    /// measurementTimestamp + 5 minutes + 15 seconds buffer.
+    /// Fallback to now + 5 minutes when timestamp is unavailable or past.
+    public static func calculateNextReloadDate(for measurementTimestamp: Date?, from now: Date = Date()) -> Date {
+        guard let timestamp = measurementTimestamp else {
+            return now.addingTimeInterval(5 * 60)
+        }
+        
+        let targetReload = timestamp.addingTimeInterval(5 * 60 + 15) // + 5m 15s
+        // If target reload date is already in the past or less than 30s away, schedule for 5m from now
+        if targetReload <= now.addingTimeInterval(30) {
+            return now.addingTimeInterval(5 * 60)
+        }
+        
+        return targetReload
+    }
+}
