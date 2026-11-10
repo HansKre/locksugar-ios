@@ -79,16 +79,16 @@
 		09A57F10CEDEFE6B663D08F4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0BC9FEC531F7601162EE9D2F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		12ED22B90876ACB7EAF747A3 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
-		1F6087CE288725370AD291DC /* LockSugarTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LockSugarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F6087CE288725370AD291DC /* LockSugarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LockSugarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		48B709375EECB2AD1A7B9F04 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		4FBA547C759F68582A788A0A /* LockSugarWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarWidget.swift; sourceTree = "<group>"; };
 		5093B2A83B09727A76D86493 /* LibreLinkUpClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibreLinkUpClient.swift; sourceTree = "<group>"; };
-		52373503FB1EE240B847F727 /* LockSugar.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LockSugar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		52373503FB1EE240B847F727 /* LockSugar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LockSugar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65623AA06ED550DD61C27B1C /* SharedStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedStorage.swift; sourceTree = "<group>"; };
 		6BA3499585112A723204EF0F /* LockSugarCircularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarCircularView.swift; sourceTree = "<group>"; };
 		7F624EF8E942E759674DAA8F /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
 		8A8C8307D2DB9148DCE2F297 /* LockSugarRectangularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarRectangularView.swift; sourceTree = "<group>"; };
-		9A367595782765F550E5CF53 /* LockSugarWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LockSugarWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A367595782765F550E5CF53 /* LockSugarWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LockSugarWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1F1D90B68641411DD401EDB /* WidgetSetupInstructionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSetupInstructionsView.swift; sourceTree = "<group>"; };
 		C35897AA5AF05538A1843BAD /* LockSugar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LockSugar.entitlements; sourceTree = "<group>"; };
 		C6F581406766881AF9C6197F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -288,9 +288,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1500;
-				TargetAttributes = {
-				};
+				LastUpgradeCheck = 2720;
 			};
 			buildConfigurationList = 934656C6BD801150D3AD9844 /* Build configuration list for PBXProject "LockSugar" */;
 			developmentRegion = en;
@@ -404,6 +402,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -421,6 +420,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -468,6 +468,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -481,8 +482,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LockSugar/LockSugar.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 5DB6QF38Z7;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LockSugar/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -498,8 +501,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LockSugarWidget/LockSugarWidget.entitlements;
+				DEVELOPMENT_TEAM = 5DB6QF38Z7;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LockSugarWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -517,6 +522,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -537,8 +543,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LockSugar/LockSugar.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 5DB6QF38Z7;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LockSugar/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -554,6 +562,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -608,6 +617,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -618,8 +628,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = LockSugarWidget/LockSugarWidget.entitlements;
+				DEVELOPMENT_TEAM = 5DB6QF38Z7;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LockSugarWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
