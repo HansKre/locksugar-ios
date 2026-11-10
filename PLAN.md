@@ -179,36 +179,36 @@ WidgetKit enforces a rolling 24-hour reload budget (~40 to 70 reloads per day). 
 ## 5. Phased Implementation Roadmap
 
 ### Phase 1: Xcode Project & Entitlements Setup
-- [ ] Generate `LockSugar.xcodeproj` linking `Shared/` files to both targets.
-- [ ] Configure `App Groups` entitlement (`group.com.hanskrebs.locksugar`) on both targets.
-- [ ] Configure `Keychain Sharing` entitlement (`$(AppIdentifierPrefix)group.com.hanskrebs.locksugar`) on both targets.
-- [ ] Configure `Background Modes` (`fetch`) for `BGAppRefreshTask`.
+- [x] Generate `LockSugar.xcodeproj` linking `Shared/` files to both targets.
+- [x] Configure `App Groups` entitlement (`group.com.hanskrebs.locksugar`) on both targets.
+- [x] Configure `Keychain Sharing` entitlement (`$(AppIdentifierPrefix)group.com.hanskrebs.locksugar`) on both targets.
+- [x] Configure `Background Modes` (`fetch`) for `BGAppRefreshTask`.
 
 ### Phase 2: Shared Core & LibreLinkUp Engine
-- [ ] Create `CryptoUtils.swift` using Apple `CryptoKit` for SHA-256 account ID calculation.
-- [ ] Implement `LibreLinkUpResponses.swift` with decodable models for login, redirect, connections, and graph.
-- [ ] Implement `KeychainHelper.swift` and `SharedStorage.swift` for App Group data access.
-- [ ] Implement `LibreLinkUpClient.swift`:
+- [x] Create `CryptoUtils.swift` using Apple `CryptoKit` for SHA-256 account ID calculation.
+- [x] Implement `LibreLinkUpResponses.swift` with decodable models for login, redirect, connections, and graph.
+- [x] Implement `KeychainHelper.swift` and `SharedStorage.swift` for App Group data access.
+- [x] Implement `LibreLinkUpClient.swift`:
   - `login(email, password)` with 403 `minimumVersion` detection and retry.
   - Regional redirect handling (`api-${region}.libreview.io`).
   - `getConnections()` and `getGraph()`.
   - Silent token renewal using Keychain credentials.
 
 ### Phase 3: Host Configuration App (`LockSugar`)
-- [ ] Build `AppViewModel.swift` with connection testing, error feedback, and persistence.
-- [ ] Build `ContentView.swift`:
+- [x] Build `AppViewModel.swift` with connection testing, error feedback, and persistence.
+- [x] Build `ContentView.swift`:
   - Clean credentials input (email & password).
   - "Verify Connection" action button.
   - Success banner showing live glucose value and connection status.
-- [ ] Build `WidgetSetupInstructionsView.swift` explaining how to customize the iOS Lock Screen.
-- [ ] Register `BGAppRefreshTask` in `LockSugarApp.swift`.
+- [x] Build `WidgetSetupInstructionsView.swift` explaining how to customize the iOS Lock Screen.
+- [x] Register `BGAppRefreshTask` in `LockSugarApp.swift`.
 
 ### Phase 4: Lock Screen Widget Extension (`LockSugarWidget`)
-- [ ] Implement `TimelineProvider`:
+- [x] Implement `TimelineProvider`:
   - `placeholder(in:)`: Returns mock reading `124`.
   - `getSnapshot(in:completion:)`: Returns cached reading or mock.
   - `getTimeline(in:completion:)`: Asynchronously calls `LibreLinkUpClient.fetchCurrentReading()`, sets next reload date, and returns timeline entry.
-- [ ] Build Widget Views:
+- [x] Build Widget Views:
   - `LockSugarCircularView` (`.accessoryCircular`): Centered bold rounded number.
   - `LockSugarInlineView` (`.accessoryInline`): Minimal text number.
   - `LockSugarRectangularView` (`.accessoryRectangular`): Centered number.
