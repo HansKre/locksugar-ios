@@ -53,9 +53,9 @@ locksugar-ios/
 
 ## How to Run Locally
 
-### 1. Prerequisites (Xcode & iOS Simulator)
+### 1. Prerequisites (Xcode & iOS SDK)
 
-Because LockSugar is a native iOS App and Lock Screen WidgetKit extension, it requires **Xcode** with the iOS SDK and Simulator:
+LockSugar is a native iOS App and Lock Screen WidgetKit extension. Running it locally requires **Xcode**:
 
 1. **Install Xcode** from the [Mac App Store](https://apps.apple.com/app/xcode/id497799835) or via `mas`:
    ```bash
@@ -65,53 +65,76 @@ Because LockSugar is a native iOS App and Lock Screen WidgetKit extension, it re
    ```bash
    sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
    ```
-3. **Accept license & install iOS Simulator platform**:
+3. **Accept license & install iOS platform**:
    ```bash
    sudo xcodebuild -license accept
    xcodebuild -downloadPlatform iOS
    ```
 
-### 2. Open Project in Xcode
+4. **Open the project**:
+   ```bash
+   open LockSugar.xcodeproj
+   ```
+   *(If you ever modify `project.yml`, run `xcodegen generate` to update the Xcode project).*
 
-The project file `LockSugar.xcodeproj` is generated and tracked in the repository:
+---
 
-```bash
-open LockSugar.xcodeproj
-```
+### Option A: Run on a Personal iPhone (Free Apple ID — $0)
 
-*(If you ever modify `project.yml`, run `xcodegen generate` to update the Xcode project).*
+You **do not need a paid $99/year Apple Developer account** to run LockSugar on your own device. You can use your personal Apple ID as a **Personal Team**:
 
-### 3. Signing & Team Configuration
+> **Note on Free Personal Signing (7-Day Expiry)**:
+> Apple limits free development provisioning profiles to **7 days**. After 7 days, iOS will state the app is *"No longer available"*. To refresh it, simply reconnect your iPhone to your Mac (via cable or Wi-Fi) and hit **`Cmd + R`** in Xcode again. All your settings and credentials remain intact.
 
-Because LockSugar uses **App Groups** (`group.com.hanskrebs.locksugar`) and **Keychain Sharing** to allow the Widget Extension and the Main App to communicate:
+#### 1. Add your Apple ID to Xcode
+- In Xcode, go to **Xcode** > **Settings** (or press `Cmd + ,`) > **Accounts**.
+- Click **`+`** in the bottom-left and select **Apple ID**.
+- Sign in with your standard Apple ID. It will appear as `Your Name (Personal Team)`.
 
-1. Select the top-level **LockSugar** project in the left navigation sidebar.
-2. Under **Targets**, select **LockSugar**:
-   - Navigate to the **Signing & Capabilities** tab.
-   - Check **Automatically manage signing**.
-   - Select your personal Apple ID or Developer **Team**.
-3. Under **Targets**, select **LockSugarWidget**:
-   - Assign the same **Team** under **Signing & Capabilities**.
+#### 2. Enable Developer Mode on your iPhone (iOS 16+)
+- On your iPhone, open **Settings** > **Privacy & Security**.
+- Scroll to the bottom, tap **Developer Mode**, and turn it **ON**.
+- Restart your iPhone when prompted, then tap **Turn On** and enter your passcode.
 
-### 4. Build & Launch in Simulator
+#### 3. Connect iPhone & Enable Wi-Fi Sync
+- Connect your iPhone to your Mac using a USB cable.
+- On your iPhone, tap **Trust This Computer** and enter your passcode.
+- In Xcode, open **Window** > **Devices and Simulators**. Select your iPhone and check **Connect via network** so you can re-deploy in the future over Wi-Fi without plugging in.
 
-1. In the top toolbar scheme selector, choose **LockSugar** and pick any iOS 16+ Simulator (e.g., **iPhone 15** or **iPhone 16**).
-2. Press **`Cmd + R`** (or click the **Play** button).
-3. The app will launch:
-   - Enter your LibreLinkUp email & password.
-   - Tap **"Verify & Connect"** to authenticate and load your live glucose reading.
+#### 4. Configure Signing in Xcode
+- In the left sidebar, select the top-level **LockSugar** project.
+- Select target **LockSugar**:
+  - Go to the **Signing & Capabilities** tab.
+  - Check **Automatically manage signing**.
+  - Select your `Your Name (Personal Team)` in the **Team** dropdown.
+  - If Xcode displays a conflict with the bundle ID, slightly customize the prefix (e.g., `com.<yourname>.locksugar`).
+- Select target **LockSugarWidget**:
+  - Assign the same `Your Name (Personal Team)` in the **Team** dropdown.
+  - Update the bundle identifier to match (e.g., `com.<yourname>.locksugar.widget`).
+  - Verify both targets use the same App Group (`group.com.hanskrebs.locksugar` or your customized group).
 
-### 5. Add the Widget to the Lock Screen
+#### 5. Install to Device
+- In Xcode's top destination toolbar, select your **connected iPhone** instead of a Simulator.
+- Press **`Cmd + R`** to build and install.
 
-1. In the Simulator, lock the screen using **`Cmd + L`** (or swipe down from the top edge to view the Lock Screen).
-2. **Long-press** anywhere on the Lock Screen wallpaper until the **Customize** button appears.
-3. Tap **Customize** -> choose **Lock Screen**.
-4. Tap the accessory slot below or above the clock.
-5. In the widget gallery, select **LockSugar** and choose your preferred style:
-   - **Inline**: Single line reading above the clock.
-   - **Circular**: Large bold rounded number below the clock.
-   - **Rectangular**: Centered reading in wide slot.
-6. Tap **Done** in the top-right corner.
+#### 6. Trust the Developer Certificate (First Run Only)
+Before iOS allows you to open the app for the first time:
+- On your iPhone, open **Settings** > **General** > **VPN & Device Management**.
+- Under **Developer App**, tap your Apple ID and tap **Trust "[Your Apple ID]"**.
+- You can now launch LockSugar, enter your LibreLinkUp credentials, and add the widget to your Lock Screen!
+
+---
+
+### Option B: Run in the iOS Simulator
+
+1. **Signing**: Under **Signing & Capabilities** for both `LockSugar` and `LockSugarWidget`, select any Team (or your Personal Team).
+2. **Select Destination**: In the top toolbar, choose an iOS Simulator (e.g., **iPhone 15** or **iPhone 16**).
+3. **Launch**: Press **`Cmd + R`** to run.
+4. **Lock Screen Widget**:
+   - Press **`Cmd + L`** to lock the simulated device (or swipe down from the top edge).
+   - Long-press the Lock Screen background and tap **Customize** > **Lock Screen**.
+   - Tap the accessory area and select **LockSugar** (`Inline`, `Circular`, or `Rectangular`).
+   - Tap **Done**.
 
 ---
 
