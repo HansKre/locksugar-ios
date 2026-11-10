@@ -18,7 +18,7 @@ struct LockSugarApp: App {
         WindowGroup {
             ContentView()
         }
-        .onChange(of: scenePhase) { newPhase in
+        .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .active:
                 // Fast-path reload when host app becomes active
