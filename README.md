@@ -51,7 +51,71 @@ locksugar-ios/
     └── MockURLProtocol.swift          # Mock network session for protocol tests
 ```
 
-## Running the Automated Test Suite
+## How to Run Locally
+
+### 1. Prerequisites (Xcode & iOS Simulator)
+
+Because LockSugar is a native iOS App and Lock Screen WidgetKit extension, it requires **Xcode** with the iOS SDK and Simulator:
+
+1. **Install Xcode** from the [Mac App Store](https://apps.apple.com/app/xcode/id497799835) or via `mas`:
+   ```bash
+   mas install 497799835
+   ```
+2. **Configure active developer directory**:
+   ```bash
+   sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+   ```
+3. **Accept license & install iOS Simulator platform**:
+   ```bash
+   sudo xcodebuild -license accept
+   xcodebuild -downloadPlatform iOS
+   ```
+
+### 2. Open Project in Xcode
+
+The project file `LockSugar.xcodeproj` is generated and tracked in the repository:
+
+```bash
+open LockSugar.xcodeproj
+```
+
+*(If you ever modify `project.yml`, run `xcodegen generate` to update the Xcode project).*
+
+### 3. Signing & Team Configuration
+
+Because LockSugar uses **App Groups** (`group.com.hanskrebs.locksugar`) and **Keychain Sharing** to allow the Widget Extension and the Main App to communicate:
+
+1. Select the top-level **LockSugar** project in the left navigation sidebar.
+2. Under **Targets**, select **LockSugar**:
+   - Navigate to the **Signing & Capabilities** tab.
+   - Check **Automatically manage signing**.
+   - Select your personal Apple ID or Developer **Team**.
+3. Under **Targets**, select **LockSugarWidget**:
+   - Assign the same **Team** under **Signing & Capabilities**.
+
+### 4. Build & Launch in Simulator
+
+1. In the top toolbar scheme selector, choose **LockSugar** and pick any iOS 16+ Simulator (e.g., **iPhone 15** or **iPhone 16**).
+2. Press **`Cmd + R`** (or click the **Play** button).
+3. The app will launch:
+   - Enter your LibreLinkUp email & password.
+   - Tap **"Verify & Connect"** to authenticate and load your live glucose reading.
+
+### 5. Add the Widget to the Lock Screen
+
+1. In the Simulator, lock the screen using **`Cmd + L`** (or swipe down from the top edge to view the Lock Screen).
+2. **Long-press** anywhere on the Lock Screen wallpaper until the **Customize** button appears.
+3. Tap **Customize** -> choose **Lock Screen**.
+4. Tap the accessory slot below or above the clock.
+5. In the widget gallery, select **LockSugar** and choose your preferred style:
+   - **Inline**: Single line reading above the clock.
+   - **Circular**: Large bold rounded number below the clock.
+   - **Rectangular**: Centered reading in wide slot.
+6. Tap **Done** in the top-right corner.
+
+---
+
+## Running the Automated Test Suite (Without Xcode)
 
 ```bash
 swift run TestRunner
