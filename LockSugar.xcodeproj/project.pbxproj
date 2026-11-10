@@ -1,0 +1,537 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0BAA9C626CF4711B6C9A6103 /* LockSugarWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9A367595782765F550E5CF53 /* LockSugarWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		153407DEB6FD05AE6F556447 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 09A57F10CEDEFE6B663D08F4 /* Assets.xcassets */; };
+		3139CC24A9FA5361FA58CF18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EBB75D8186B9E2242DF49F23 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6E041089D6DC8ABBAAA50EDF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5E2B8E6E2D7D7368986A8C45 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FA301C64709D431EC550E24C;
+			remoteInfo = LockSugarWidget;
+		};
+		767CEDB0FFD1BE5FEF8C5127 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5E2B8E6E2D7D7368986A8C45 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA36823BB91B3525F45BAA34;
+			remoteInfo = LockSugar;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BF961BE651DB2021F742B2FF /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0BAA9C626CF4711B6C9A6103 /* LockSugarWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		07CB5E55B2347BB6D0402CBB /* LockSugarWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LockSugarWidget.entitlements; sourceTree = "<group>"; };
+		09A57F10CEDEFE6B663D08F4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0BC9FEC531F7601162EE9D2F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		1F6087CE288725370AD291DC /* LockSugarTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LockSugarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		52373503FB1EE240B847F727 /* LockSugar.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LockSugar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A367595782765F550E5CF53 /* LockSugarWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LockSugarWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C35897AA5AF05538A1843BAD /* LockSugar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LockSugar.entitlements; sourceTree = "<group>"; };
+		EBB75D8186B9E2242DF49F23 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FFF709D907028C5EDFD2A202 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		2049FD569181C15FAEEFD957 /* LockSugar */ = {
+			isa = PBXGroup;
+			children = (
+				EBB75D8186B9E2242DF49F23 /* Assets.xcassets */,
+				FFF709D907028C5EDFD2A202 /* Info.plist */,
+				C35897AA5AF05538A1843BAD /* LockSugar.entitlements */,
+			);
+			path = LockSugar;
+			sourceTree = "<group>";
+		};
+		2F703046761CA9BBD125B830 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		36CA16904F33ED4487A6A47C /* LockSugarWidget */ = {
+			isa = PBXGroup;
+			children = (
+				09A57F10CEDEFE6B663D08F4 /* Assets.xcassets */,
+				0BC9FEC531F7601162EE9D2F /* Info.plist */,
+				07CB5E55B2347BB6D0402CBB /* LockSugarWidget.entitlements */,
+			);
+			path = LockSugarWidget;
+			sourceTree = "<group>";
+		};
+		6DDB88C5BEA54BD09D6B11A6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				52373503FB1EE240B847F727 /* LockSugar.app */,
+				1F6087CE288725370AD291DC /* LockSugarTests.xctest */,
+				9A367595782765F550E5CF53 /* LockSugarWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		85FDD543F848557F2F8F7BDA = {
+			isa = PBXGroup;
+			children = (
+				2049FD569181C15FAEEFD957 /* LockSugar */,
+				36CA16904F33ED4487A6A47C /* LockSugarWidget */,
+				2F703046761CA9BBD125B830 /* Shared */,
+				EEA19A8FA8901F086357E14B /* Tests */,
+				6DDB88C5BEA54BD09D6B11A6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		EEA19A8FA8901F086357E14B /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		035FF4B7268F7907B442B95E /* LockSugarTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 10BC9496CE74763F24FB63F9 /* Build configuration list for PBXNativeTarget "LockSugarTests" */;
+			buildPhases = (
+				20BC40A8E2DB2FC91B530CF2 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E5ABE3A72DF788450791C5C7 /* PBXTargetDependency */,
+			);
+			name = LockSugarTests;
+			packageProductDependencies = (
+			);
+			productName = LockSugarTests;
+			productReference = 1F6087CE288725370AD291DC /* LockSugarTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		AA36823BB91B3525F45BAA34 /* LockSugar */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 12988925D9CE9CAAF150A85B /* Build configuration list for PBXNativeTarget "LockSugar" */;
+			buildPhases = (
+				8ACB06D04C8A9822CDEAF9DB /* Sources */,
+				560CBC7FCE7C088D5DAB5E7B /* Resources */,
+				BF961BE651DB2021F742B2FF /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F1028D90E5E3E50147B68BB5 /* PBXTargetDependency */,
+			);
+			name = LockSugar;
+			packageProductDependencies = (
+			);
+			productName = LockSugar;
+			productReference = 52373503FB1EE240B847F727 /* LockSugar.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FA301C64709D431EC550E24C /* LockSugarWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4B41880BF29221C272B2ED7A /* Build configuration list for PBXNativeTarget "LockSugarWidget" */;
+			buildPhases = (
+				723D9EA53DA1F61C6418D3BD /* Sources */,
+				4EEC0A70940FF899269AD0A5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LockSugarWidget;
+			packageProductDependencies = (
+			);
+			productName = LockSugarWidget;
+			productReference = 9A367595782765F550E5CF53 /* LockSugarWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5E2B8E6E2D7D7368986A8C45 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 934656C6BD801150D3AD9844 /* Build configuration list for PBXProject "LockSugar" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 85FDD543F848557F2F8F7BDA;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 6DDB88C5BEA54BD09D6B11A6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA36823BB91B3525F45BAA34 /* LockSugar */,
+				FA301C64709D431EC550E24C /* LockSugarWidget */,
+				035FF4B7268F7907B442B95E /* LockSugarTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4EEC0A70940FF899269AD0A5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				153407DEB6FD05AE6F556447 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		560CBC7FCE7C088D5DAB5E7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3139CC24A9FA5361FA58CF18 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		20BC40A8E2DB2FC91B530CF2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		723D9EA53DA1F61C6418D3BD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8ACB06D04C8A9822CDEAF9DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E5ABE3A72DF788450791C5C7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA36823BB91B3525F45BAA34 /* LockSugar */;
+			targetProxy = 767CEDB0FFD1BE5FEF8C5127 /* PBXContainerItemProxy */;
+		};
+		F1028D90E5E3E50147B68BB5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FA301C64709D431EC550E24C /* LockSugarWidget */;
+			targetProxy = 6E041089D6DC8ABBAAA50EDF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		5FCA2D45B669A8342AB98561 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.hanskrebs.locksugar.tests;
+				PRODUCT_NAME = LockSugarTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LockSugar.app/LockSugar";
+			};
+			name = Debug;
+		};
+		80F88248924ED366EEAF6876 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		8652C18FF9D6CB5B3C297C48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LockSugar/LockSugar.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LockSugar/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.hanskrebs.locksugar;
+				PRODUCT_NAME = LockSugar;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		93A4B16FAE5A647798A625DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = LockSugarWidget/LockSugarWidget.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LockSugarWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.hanskrebs.locksugar.widget;
+				PRODUCT_NAME = LockSugarWidget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		97D7E97140E2DC97706872B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.hanskrebs.locksugar.tests;
+				PRODUCT_NAME = LockSugarTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LockSugar.app/LockSugar";
+			};
+			name = Release;
+		};
+		9D0CABC616902EACCEB9D218 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LockSugar/LockSugar.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LockSugar/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.hanskrebs.locksugar;
+				PRODUCT_NAME = LockSugar;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		BE11332978C121B0208F883B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F5A5599B5DA13F7A27B9777B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = LockSugarWidget/LockSugarWidget.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LockSugarWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.hanskrebs.locksugar.widget;
+				PRODUCT_NAME = LockSugarWidget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		10BC9496CE74763F24FB63F9 /* Build configuration list for PBXNativeTarget "LockSugarTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5FCA2D45B669A8342AB98561 /* Debug */,
+				97D7E97140E2DC97706872B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		12988925D9CE9CAAF150A85B /* Build configuration list for PBXNativeTarget "LockSugar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9D0CABC616902EACCEB9D218 /* Debug */,
+				8652C18FF9D6CB5B3C297C48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4B41880BF29221C272B2ED7A /* Build configuration list for PBXNativeTarget "LockSugarWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F5A5599B5DA13F7A27B9777B /* Debug */,
+				93A4B16FAE5A647798A625DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		934656C6BD801150D3AD9844 /* Build configuration list for PBXProject "LockSugar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE11332978C121B0208F883B /* Debug */,
+				80F88248924ED366EEAF6876 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5E2B8E6E2D7D7368986A8C45 /* Project object */;
+}

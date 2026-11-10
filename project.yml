@@ -1,0 +1,64 @@
+name: LockSugar
+options:
+  bundleIdPrefix: com.hanskrebs
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+
+targets:
+  LockSugar:
+    type: application
+    platform: iOS
+    sources:
+      - path: LockSugar
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hanskrebs.locksugar
+        PRODUCT_NAME: LockSugar
+        INFOPLIST_FILE: LockSugar/Info.plist
+        CODE_SIGN_ENTITLEMENTS: LockSugar/LockSugar.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    dependencies:
+      - target: LockSugarWidget
+        embed: true
+
+  LockSugarWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: LockSugarWidget
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hanskrebs.locksugar.widget
+        PRODUCT_NAME: LockSugarWidget
+        INFOPLIST_FILE: LockSugarWidget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: LockSugarWidget/LockSugarWidget.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        TARGETED_DEVICE_FAMILY: "1"
+
+  LockSugarTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hanskrebs.locksugar.tests
+        PRODUCT_NAME: LockSugarTests
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1"
+    dependencies:
+      - target: LockSugar
