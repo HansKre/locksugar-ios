@@ -1,0 +1,202 @@
+import SwiftUI
+
+public struct ContentView: View {
+    @StateObject private var viewModel = AppViewModel()
+    
+    public init() {}
+    
+    public var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    headerView
+                    
+                    if let error = viewModel.errorMessage {
+                        errorBanner(error)
+                    }
+                    
+                    if viewModel.isConnected, let reading = viewModel.lastReading {
+                        connectedView(reading)
+                    } else {
+                        loginFormView
+                    }
+                }
+                .padding(20)
+            }
+            .navigationTitle("LockSugar")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $viewModel.showingInstructions) {
+                WidgetSetupInstructionsView()
+            }
+        }
+        .navigationViewStyle(.stack)
+    }
+    
+    // MARK: - Header
+    
+    private var headerView: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "drop.fill")
+                .font(.system(size: 48))
+                .foregroundColor(.red)
+            
+            Text("LockSugar")
+                .font(.title.bold())
+            
+            Text("Ultra-minimalist glucose readings on your Lock Screen")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.vertical, 8)
+    }
+    
+    // MARK: - Connected Status
+    
+    private func connectedView(_ reading: GlucoseReading) -> some View {
+        VStack(spacing: 20) {
+            // Live Glucose Card
+            VStack(spacing: 12) {
+                HStack {
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 10, height: 10)
+                    Text("Connected to LibreLinkUp")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(.green)
+                    Spacer()
+                }
+                
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(reading.formattedValue)
+                        .font(.system(size: 64, weight: .bold, design: .rounded))
+                    Text(reading.glucoseUnits.label)
+                        .font(.title2.weight(.medium))
+                        .foregroundColor(.secondary)
+                }
+                .padding(.vertical, 4)
+                
+                Text("Last reading: \(reading.timestamp, style: .time)")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+            }
+            .padding(20)
+            .frame(maxWidth: .infinity)
+            .background(Color(UIColor.secondarySystemBackground))
+            .cornerRadius(16)
+            
+            // Actions
+            VStack(spacing: 12) {
+                Button {
+                    viewModel.showingInstructions = true
+                } label: {
+                    Label("Lock Screen Widget Setup", systemImage: "questionmark.circle.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.accentColor)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                }
+                
+                Button {
+                    Task {
+                        await viewModel.verifyConnection()
+                    }
+                } label: {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                    } else {
+                        Label("Refresh Reading", systemImage: "arrow.clockwise")
+                            .font(.headline)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color(UIColor.secondarySystemBackground))
+                .foregroundColor(.primary)
+                .cornerRadius(12)
+                .disabled(viewModel.isLoading)
+                
+                Button(role: .destructive) {
+                    viewModel.disconnect()
+                } label: {
+                    Text("Disconnect Account")
+                        .font(.subheadline)
+                        .foregroundColor(.red)
+                }
+                .padding(.top, 8)
+            }
+        }
+    }
+    
+    // MARK: - Login Form
+    
+    private var loginFormView: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("LibreLinkUp Credentials")
+                .font(.headline)
+            
+            VStack(spacing: 12) {
+                TextField("Email", text: $viewModel.email)
+                    .textContentType(.emailAddress)
+                    .keyboardType(.emailAddress)
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
+                    .padding()
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(10)
+                
+                SecureField("Password", text: $viewModel.password)
+                    .textContentType(.password)
+                    .padding()
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(10)
+            }
+            
+            Button {
+                Task {
+                    await viewModel.verifyConnection()
+                }
+            } label: {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                } else {
+                    Text("Verify & Connect")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+            }
+            .background(Color.accentColor)
+            .foregroundColor(.white)
+            .cornerRadius(12)
+            .disabled(viewModel.isLoading)
+            
+            Text("Credentials are saved exclusively in your encrypted device Keychain and shared with the Lock Screen widget via App Groups.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.top, 4)
+        }
+    }
+    
+    // MARK: - Error Banner
+    
+    private func errorBanner(_ message: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.red)
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.primary)
+            Spacer()
+        }
+        .padding()
+        .background(Color.red.opacity(0.12))
+        .cornerRadius(12)
+    }
+}
