@@ -137,4 +137,47 @@ runTest("LibreLinkUpResponses.decodeGraph") {
     assertEqual(reading?.formattedValue, "182.0") // glucoseUnits is 1 (mmol/L) in sample
 }
 
+runTest("KeychainHelper.inMemory") {
+    let keychain = KeychainHelper(service: "test.service", accessGroup: nil, useInMemoryFallbackForTests: true)
+    keychain.email = "test@example.com"
+    keychain.password = "secret123"
+    keychain.jwtToken = "jwt.token.abc"
+    
+    assertEqual(keychain.email, "test@example.com")
+    assertEqual(keychain.password, "secret123")
+    assertEqual(keychain.jwtToken, "jwt.token.abc")
+    
+    keychain.clearAll()
+    assertTrue(keychain.email == nil)
+    assertTrue(keychain.password == nil)
+    assertTrue(keychain.jwtToken == nil)
+}
+
+runTest("SharedStorage.cacheAndRetrieve") {
+    let defaults = UserDefaults(suiteName: "test.suite.\(UUID().uuidString)")!
+    let storage = SharedStorage(userDefaults: defaults)
+    
+    assertEqual(storage.apiBaseUrl, SharedStorage.defaultBaseUrl)
+    assertEqual(storage.apiMinimumVersion, SharedStorage.defaultMinimumVersion)
+    
+    storage.accountIdHash = "hash123"
+    storage.patientId = "patient-abc"
+    storage.apiBaseUrl = "https://api-eu.libreview.io"
+    storage.apiMinimumVersion = "4.17.0"
+    
+    let sampleReading = GlucoseReading(
+        value: 135,
+        valueInMgPerDl: 135,
+        glucoseUnits: .mgPerDl,
+        timestamp: Date()
+    )
+    storage.cachedGlucoseReading = sampleReading
+    
+    assertEqual(storage.accountIdHash, "hash123")
+    assertEqual(storage.patientId, "patient-abc")
+    assertEqual(storage.apiBaseUrl, "https://api-eu.libreview.io")
+    assertEqual(storage.apiMinimumVersion, "4.17.0")
+    assertEqual(storage.cachedGlucoseReading?.formattedValue, "135")
+}
+
 print("=== All Tests Passed Successfully ===")
