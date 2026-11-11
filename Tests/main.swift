@@ -108,6 +108,92 @@ runTest("GlucoseReading.staleness") {
     assertTrue(staleReading.isStale(relativeTo: now))
 }
 
+runTest("GlucoseZone.classificationAndColors") {
+    // Threshold tests based on glucoseConfig.ts
+    assertEqual(GlucoseZone.zone(for: 50), .veryLow)
+    assertEqual(GlucoseZone.zone(for: 69), .veryLow)
+    assertEqual(GlucoseZone.zone(for: 70), .low)
+    assertEqual(GlucoseZone.zone(for: 99), .low)
+    assertEqual(GlucoseZone.zone(for: 100), .normal)
+    assertEqual(GlucoseZone.zone(for: 155), .normal)
+    assertEqual(GlucoseZone.zone(for: 156), .elevated)
+    assertEqual(GlucoseZone.zone(for: 189), .elevated)
+    assertEqual(GlucoseZone.zone(for: 190), .high)
+    assertEqual(GlucoseZone.zone(for: 249), .high)
+    assertEqual(GlucoseZone.zone(for: 250), .veryHigh)
+    assertEqual(GlucoseZone.zone(for: 350), .veryHigh)
+    
+    // Hex colors
+    assertEqual(GlucoseZone.veryLow.hexColor, "#8B0000")
+    assertEqual(GlucoseZone.low.hexColor, "#FF9800")
+    assertEqual(GlucoseZone.normal.hexColor, "#4CAF50")
+    assertEqual(GlucoseZone.elevated.hexColor, "#FF9800")
+    assertEqual(GlucoseZone.high.hexColor, "#F44336")
+    assertEqual(GlucoseZone.veryHigh.hexColor, "#8B0000")
+}
+
+runTest("GlucoseReading.trendArrows") {
+    let reading1 = GlucoseReading(value: 100, valueInMgPerDl: 100, glucoseUnits: .mgPerDl, timestamp: Date(), trendArrow: 1)
+    assertEqual(reading1.trendArrowSymbol, "↓")
+    
+    let reading2 = GlucoseReading(value: 100, valueInMgPerDl: 100, glucoseUnits: .mgPerDl, timestamp: Date(), trendArrow: 2)
+    assertEqual(reading2.trendArrowSymbol, "↘")
+    
+    let reading3 = GlucoseReading(value: 100, valueInMgPerDl: 100, glucoseUnits: .mgPerDl, timestamp: Date(), trendArrow: 3)
+    assertEqual(reading3.trendArrowSymbol, "→")
+    
+    let reading4 = GlucoseReading(value: 100, valueInMgPerDl: 100, glucoseUnits: .mgPerDl, timestamp: Date(), trendArrow: 4)
+    assertEqual(reading4.trendArrowSymbol, "↗")
+    
+    let reading5 = GlucoseReading(value: 100, valueInMgPerDl: 100, glucoseUnits: .mgPerDl, timestamp: Date(), trendArrow: 5)
+    assertEqual(reading5.trendArrowSymbol, "↑")
+    
+    let readingNil = GlucoseReading(value: 100, valueInMgPerDl: 100, glucoseUnits: .mgPerDl, timestamp: Date(), trendArrow: nil)
+    assertEqual(readingNil.trendArrowSymbol, "→")
+}
+
+runTest("GlucoseForecastCalculator.projections") {
+    let now = Date()
+    
+    // 1. Sparse data (< 3 points) returns empty
+    let sparse = [
+        GlucoseReading(value: 100, valueInMgPerDl: 100, glucoseUnits: .mgPerDl, timestamp: now)
+    ]
+    let sparseProj = GlucoseForecastCalculator.calculateProjection(from: sparse)
+    assertTrue(sparseProj.isEmpty)
+    
+    // 2. Falling trend: 130 -> 120 -> 110 -> 100 (every 10 minutes)
+    let fallingHistory = [
+        GlucoseReading(value: 130, valueInMgPerDl: 130, glucoseUnits: .mgPerDl, timestamp: now.addingTimeInterval(-30 * 60)),
+        GlucoseReading(value: 120, valueInMgPerDl: 120, glucoseUnits: .mgPerDl, timestamp: now.addingTimeInterval(-20 * 60)),
+        GlucoseReading(value: 110, valueInMgPerDl: 110, glucoseUnits: .mgPerDl, timestamp: now.addingTimeInterval(-10 * 60)),
+        GlucoseReading(value: 100, valueInMgPerDl: 100, glucoseUnits: .mgPerDl, timestamp: now)
+    ]
+    let fallingProj = GlucoseForecastCalculator.calculateProjection(from: fallingHistory, minutesAhead: 30)
+    assertTrue(!fallingProj.isEmpty)
+    assertTrue(fallingProj.count >= 2)
+    // First projected point should be lower than last reading (100)
+    assertTrue(fallingProj[0].value < 100.0)
+    // Points should continue to descend
+    assertTrue(fallingProj.last!.value < fallingProj[0].value)
+    // Uncertainty band widens over time
+    let firstBandWidth = fallingProj[0].upperBound - fallingProj[0].lowerBound
+    let lastBandWidth = fallingProj.last!.upperBound - fallingProj.last!.lowerBound
+    assertTrue(lastBandWidth > firstBandWidth)
+    
+    // 3. Rising trend: 90 -> 100 -> 110 -> 120
+    let risingHistory = [
+        GlucoseReading(value: 90, valueInMgPerDl: 90, glucoseUnits: .mgPerDl, timestamp: now.addingTimeInterval(-30 * 60)),
+        GlucoseReading(value: 100, valueInMgPerDl: 100, glucoseUnits: .mgPerDl, timestamp: now.addingTimeInterval(-20 * 60)),
+        GlucoseReading(value: 110, valueInMgPerDl: 110, glucoseUnits: .mgPerDl, timestamp: now.addingTimeInterval(-10 * 60)),
+        GlucoseReading(value: 120, valueInMgPerDl: 120, glucoseUnits: .mgPerDl, timestamp: now)
+    ]
+    let risingProj = GlucoseForecastCalculator.calculateProjection(from: risingHistory, minutesAhead: 30)
+    assertTrue(!risingProj.isEmpty)
+    assertTrue(risingProj[0].value > 120.0)
+    assertTrue(risingProj.last!.value > risingProj[0].value)
+}
+
 runTest("LibreLinkUpResponses.decodeGraph") {
     let jsonString = """
     {
@@ -191,6 +277,38 @@ runTest("SharedStorage.cacheAndRetrieve") {
     assertEqual(storage.apiBaseUrl, "https://api-eu.libreview.io")
     assertEqual(storage.apiMinimumVersion, "4.17.0")
     assertEqual(storage.cachedGlucoseReading?.formattedValue, "135")
+}
+
+runTest("SharedStorage.historyAndTargets") {
+    let defaults = UserDefaults(suiteName: "test.suite.\(UUID().uuidString)")!
+    let storage = SharedStorage(userDefaults: defaults)
+    
+    // Initially empty
+    assertTrue(storage.cachedGlucoseHistory.isEmpty)
+    assertTrue(storage.targetLow == nil)
+    assertTrue(storage.targetHigh == nil)
+    
+    // Store targets and history
+    storage.targetLow = 70.0
+    storage.targetHigh = 180.0
+    assertEqual(storage.targetLow, 70.0)
+    assertEqual(storage.targetHigh, 180.0)
+    
+    let now = Date()
+    let history = [
+        GlucoseReading(value: 110, valueInMgPerDl: 110, glucoseUnits: .mgPerDl, timestamp: now.addingTimeInterval(-15 * 60)),
+        GlucoseReading(value: 115, valueInMgPerDl: 115, glucoseUnits: .mgPerDl, timestamp: now)
+    ]
+    storage.cachedGlucoseHistory = history
+    assertEqual(storage.cachedGlucoseHistory.count, 2)
+    assertEqual(storage.cachedGlucoseHistory[0].valueInMgPerDl, 110.0)
+    assertEqual(storage.cachedGlucoseHistory[1].valueInMgPerDl, 115.0)
+    
+    // Clear all
+    storage.clearAll()
+    assertTrue(storage.cachedGlucoseHistory.isEmpty)
+    assertTrue(storage.targetLow == nil)
+    assertTrue(storage.targetHigh == nil)
 }
 
 // MARK: - Client & Network Flow Tests

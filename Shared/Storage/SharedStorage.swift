@@ -13,6 +13,9 @@ public final class SharedStorage {
         public static let apiBaseUrl = "locksugar_api_base_url"
         public static let apiMinimumVersion = "locksugar_api_minimum_version"
         public static let cachedGlucoseReading = "locksugar_cached_glucose_reading"
+        public static let cachedGlucoseHistory = "locksugar_cached_glucose_history"
+        public static let targetLow = "locksugar_target_low"
+        public static let targetHigh = "locksugar_target_high"
         public static let lastSyncTimestamp = "locksugar_last_sync_timestamp"
     }
     
@@ -56,6 +59,48 @@ public final class SharedStorage {
         }
     }
     
+    public var cachedGlucoseHistory: [GlucoseReading] {
+        get {
+            guard let data = userDefaults.data(forKey: Key.cachedGlucoseHistory) else { return [] }
+            return (try? JSONDecoder().decode([GlucoseReading].self, from: data)) ?? []
+        }
+        set {
+            if let data = try? JSONEncoder().encode(newValue) {
+                userDefaults.set(data, forKey: Key.cachedGlucoseHistory)
+            } else {
+                userDefaults.removeObject(forKey: Key.cachedGlucoseHistory)
+            }
+        }
+    }
+    
+    public var targetLow: Double? {
+        get {
+            let val = userDefaults.double(forKey: Key.targetLow)
+            return val > 0 ? val : nil
+        }
+        set {
+            if let val = newValue {
+                userDefaults.set(val, forKey: Key.targetLow)
+            } else {
+                userDefaults.removeObject(forKey: Key.targetLow)
+            }
+        }
+    }
+    
+    public var targetHigh: Double? {
+        get {
+            let val = userDefaults.double(forKey: Key.targetHigh)
+            return val > 0 ? val : nil
+        }
+        set {
+            if let val = newValue {
+                userDefaults.set(val, forKey: Key.targetHigh)
+            } else {
+                userDefaults.removeObject(forKey: Key.targetHigh)
+            }
+        }
+    }
+    
     public var lastSyncTimestamp: Date? {
         get { userDefaults.object(forKey: Key.lastSyncTimestamp) as? Date }
         set { userDefaults.set(newValue, forKey: Key.lastSyncTimestamp) }
@@ -67,6 +112,9 @@ public final class SharedStorage {
         userDefaults.removeObject(forKey: Key.apiBaseUrl)
         userDefaults.removeObject(forKey: Key.apiMinimumVersion)
         userDefaults.removeObject(forKey: Key.cachedGlucoseReading)
+        userDefaults.removeObject(forKey: Key.cachedGlucoseHistory)
+        userDefaults.removeObject(forKey: Key.targetLow)
+        userDefaults.removeObject(forKey: Key.targetHigh)
         userDefaults.removeObject(forKey: Key.lastSyncTimestamp)
     }
 }

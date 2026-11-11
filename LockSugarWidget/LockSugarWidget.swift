@@ -4,10 +4,25 @@ import SwiftUI
 public struct GlucoseEntry: TimelineEntry {
     public let date: Date
     public let reading: GlucoseReading?
+    public let history: [GlucoseReading]
+    public let forecast: [GlucoseForecastPoint]
+    public let targetLow: Double
+    public let targetHigh: Double
     
-    public init(date: Date, reading: GlucoseReading?) {
+    public init(
+        date: Date,
+        reading: GlucoseReading?,
+        history: [GlucoseReading] = [],
+        forecast: [GlucoseForecastPoint] = [],
+        targetLow: Double = GlucoseZone.defaultTargetLow,
+        targetHigh: Double = GlucoseZone.defaultTargetHigh
+    ) {
         self.date = date
         self.reading = reading
+        self.history = history
+        self.forecast = forecast
+        self.targetLow = targetLow
+        self.targetHigh = targetHigh
     }
 }
 
@@ -24,16 +39,36 @@ public struct GlucoseTimelineProvider: TimelineProvider {
     }
     
     public func placeholder(in context: Context) -> GlucoseEntry {
-        GlucoseEntry(date: Date(), reading: .previewMock)
+        let mock = GlucoseReading.previewMock
+        let history = GlucoseReading.previewHistory
+        let forecast = GlucoseForecastCalculator.calculateProjection(from: history, current: mock)
+        return GlucoseEntry(
+            date: Date(),
+            reading: mock,
+            history: history,
+            forecast: forecast,
+            targetLow: storage.targetLow ?? GlucoseZone.defaultTargetLow,
+            targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh
+        )
     }
     
     public func getSnapshot(in context: Context, completion: @escaping (GlucoseEntry) -> Void) {
         if context.isPreview {
-            completion(GlucoseEntry(date: Date(), reading: .previewMock))
+            completion(placeholder(in: context))
             return
         }
         let reading = storage.cachedGlucoseReading ?? .previewMock
-        completion(GlucoseEntry(date: Date(), reading: reading))
+        let history = storage.cachedGlucoseHistory.isEmpty ? GlucoseReading.previewHistory : storage.cachedGlucoseHistory
+        let forecast = GlucoseForecastCalculator.calculateProjection(from: history, current: reading)
+        let entry = GlucoseEntry(
+            date: Date(),
+            reading: reading,
+            history: history,
+            forecast: forecast,
+            targetLow: storage.targetLow ?? GlucoseZone.defaultTargetLow,
+            targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh
+        )
+        completion(entry)
     }
     
     public func getTimeline(in context: Context, completion: @escaping (Timeline<GlucoseEntry>) -> Void) {
@@ -48,7 +83,16 @@ public struct GlucoseTimelineProvider: TimelineProvider {
                 reading = storage.cachedGlucoseReading
             }
             
-            let entry = GlucoseEntry(date: Date(), reading: reading)
+            let history = storage.cachedGlucoseHistory.isEmpty && reading == nil ? GlucoseReading.previewHistory : storage.cachedGlucoseHistory
+            let forecast = GlucoseForecastCalculator.calculateProjection(from: history, current: reading)
+            let entry = GlucoseEntry(
+                date: Date(),
+                reading: reading,
+                history: history,
+                forecast: forecast,
+                targetLow: storage.targetLow ?? GlucoseZone.defaultTargetLow,
+                targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh
+            )
             let reloadDate = TimelineScheduler.calculateNextReloadDate(for: reading?.timestamp, from: Date())
             
             let timeline = Timeline(entries: [entry], policy: .after(reloadDate))
@@ -73,7 +117,13 @@ struct LockSugarWidgetEntryView: View {
             case .accessoryInline:
                 LockSugarInlineView(reading: entry.reading)
             case .accessoryRectangular:
-                LockSugarRectangularView(reading: entry.reading)
+                LockSugarRectangularView(
+                    reading: entry.reading,
+                    history: entry.history,
+                    forecast: entry.forecast,
+                    targetLow: entry.targetLow,
+                    targetHigh: entry.targetHigh
+                )
             default:
                 LockSugarCircularView(reading: entry.reading)
             }

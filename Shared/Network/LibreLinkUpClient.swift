@@ -219,6 +219,19 @@ public final class LibreLinkUpClient {
         
         let graphResponse = try JSONDecoder().decode(LLUGraphResponse.self, from: data)
         
+        // Extract target ranges if present
+        if let targetLow = graphResponse.data?.connection?.targetLow {
+            storage.targetLow = targetLow
+        }
+        if let targetHigh = graphResponse.data?.connection?.targetHigh {
+            storage.targetHigh = targetHigh
+        }
+        
+        var parsedHistory: [GlucoseReading] = []
+        if let graphData = graphResponse.data?.graphData {
+            parsedHistory = graphData.compactMap { GlucoseReading(measurement: $0) }
+        }
+        
         var chosenReading: GlucoseReading?
         if let latestMeasurement = graphResponse.data?.connection?.glucoseMeasurement ?? graphResponse.data?.connection?.glucoseItem,
            let reading = GlucoseReading(measurement: latestMeasurement) {
@@ -226,16 +239,13 @@ public final class LibreLinkUpClient {
         }
         
         // If graphData contains a strictly newer measurement, or if glucoseMeasurement was nil/failed to parse:
-        if let graphData = graphResponse.data?.graphData {
-            let parsedGraph = graphData.compactMap { GlucoseReading(measurement: $0) }
-            if let newestGraphReading = parsedGraph.max(by: { $0.timestamp < $1.timestamp }) {
-                if let current = chosenReading {
-                    if newestGraphReading.timestamp > current.timestamp {
-                        chosenReading = newestGraphReading
-                    }
-                } else {
+        if let newestGraphReading = parsedHistory.max(by: { $0.timestamp < $1.timestamp }) {
+            if let current = chosenReading {
+                if newestGraphReading.timestamp > current.timestamp {
                     chosenReading = newestGraphReading
                 }
+            } else {
+                chosenReading = newestGraphReading
             }
         }
         
@@ -243,8 +253,15 @@ public final class LibreLinkUpClient {
             throw LibreLinkUpError.noMeasurementData
         }
         
-        // Cache latest reading
+        // Ensure chosen reading is included in history
+        if !parsedHistory.contains(where: { abs($0.timestamp.timeIntervalSince(reading.timestamp)) < 1.0 }) {
+            parsedHistory.append(reading)
+        }
+        parsedHistory.sort(by: { $0.timestamp < $1.timestamp })
+        
+        // Cache latest reading and historical readings
         storage.cachedGlucoseReading = reading
+        storage.cachedGlucoseHistory = parsedHistory
         storage.lastSyncTimestamp = Date()
         
         return reading
@@ -284,5 +301,12 @@ public final class LibreLinkUpClient {
         let (jwt, accountIdHash) = try await login(email: email, password: password)
         let patientId = try await getConnections(jwtToken: jwt, accountIdHash: accountIdHash)
         return try await getGraph(patientId: patientId, jwtToken: jwt, accountIdHash: accountIdHash)
+    }
+    
+    /// Fetches the latest glucose reading along with cached history.
+    public func fetchReadingWithHistory() async throws -> (reading: GlucoseReading, history: [GlucoseReading]) {
+        let reading = try await fetchCurrentReading()
+        let history = storage.cachedGlucoseHistory
+        return (reading, history)
     }
 }
