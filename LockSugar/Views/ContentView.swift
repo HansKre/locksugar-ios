@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct ContentView: View {
     @StateObject private var viewModel = AppViewModel()
+    @ObservedObject private var liveActivityManager = LiveActivityManager.shared
     @Environment(\.scenePhase) private var scenePhase
     
     public init() {}
@@ -132,6 +133,24 @@ public struct ContentView: View {
             // Actions
             VStack(spacing: 12) {
                 Button {
+                    liveActivityManager.toggleLiveActivity(
+                        reading: viewModel.lastReading,
+                        history: viewModel.storage.cachedGlucoseHistory
+                    )
+                } label: {
+                    HStack {
+                        Image(systemName: liveActivityManager.isLiveActivityActive ? "stop.circle.fill" : "play.circle.fill")
+                        Text(liveActivityManager.isLiveActivityActive ? "Stop Live Activity (CarPlay Card)" : "Start Live Activity (CarPlay Card)")
+                    }
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(liveActivityManager.isLiveActivityActive ? Color(red: 0.11, green: 0.25, blue: 0.14) : Color.accentColor)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+                
+                Button {
                     Task {
                         await viewModel.refreshReading()
                     }
@@ -154,7 +173,7 @@ public struct ContentView: View {
                 Button {
                     viewModel.showingInstructions = true
                 } label: {
-                    Label("How to Lock Screen Widget", systemImage: "questionmark.circle.fill")
+                    Label("Widget Setup Guide (Lock Screen & CarPlay)", systemImage: "questionmark.circle.fill")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()

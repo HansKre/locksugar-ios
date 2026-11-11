@@ -98,6 +98,25 @@ public extension Color {
         case .veryHigh: return .glucoseVeryHigh
         }
     }
+    
+    /// Dark semantic container background colors tuned for CarPlay and widget cards.
+    static func containerBackground(for zone: GlucoseZone) -> Color {
+        switch zone {
+        case .normal:
+            // Emerald forest green from CarPlay screenshot
+            return Color(red: 28 / 255.0, green: 62 / 255.0, blue: 37 / 255.0)
+        case .veryLow:
+            return Color(red: 80 / 255.0, green: 15 / 255.0, blue: 15 / 255.0)
+        case .low:
+            return Color(red: 90 / 255.0, green: 45 / 255.0, blue: 12 / 255.0)
+        case .elevated:
+            return Color(red: 90 / 255.0, green: 45 / 255.0, blue: 12 / 255.0)
+        case .high:
+            return Color(red: 95 / 255.0, green: 25 / 255.0, blue: 20 / 255.0)
+        case .veryHigh:
+            return Color(red: 80 / 255.0, green: 15 / 255.0, blue: 15 / 255.0)
+        }
+    }
 }
 
 // MARK: - Forecast Models & Calculator
@@ -268,6 +287,10 @@ public struct GlucoseReading: Codable, Equatable {
     /// 4: ↗ (rising)
     /// 5: ↑ (rising fast)
     public var trendArrowSymbol: String {
+        Self.arrowSymbol(for: trendArrow)
+    }
+    
+    public static func arrowSymbol(for trendArrow: Int?) -> String {
         switch trendArrow {
         case 1: return "↓"
         case 2: return "↘"
@@ -292,6 +315,26 @@ public struct GlucoseReading: Codable, Equatable {
         formatter.timeStyle = .short
         formatter.dateStyle = .none
         return formatter.string(from: timestamp)
+    }
+    
+    /// Calculates the delta between the current reading and the immediately preceding historical reading.
+    public static func calculateDelta(current: GlucoseReading?, history: [GlucoseReading]) -> Double? {
+        guard let current = current else { return nil }
+        if let previous = history.filter({ $0.timestamp < current.timestamp }).last {
+            return current.value - previous.value
+        }
+        return nil
+    }
+    
+    /// Formats the signed delta value (e.g. "+5", "-2", "0", or "--" if unavailable).
+    public static func formatDelta(_ delta: Double?) -> String {
+        guard let delta = delta else { return "--" }
+        let rounded = Int(round(delta))
+        if rounded > 0 {
+            return "+\(rounded)"
+        } else {
+            return "\(rounded)"
+        }
     }
     
     /// Checks whether the reading is older than a staleness threshold (default 20 minutes).

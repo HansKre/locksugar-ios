@@ -67,6 +67,8 @@ public final class AppViewModel: ObservableObject {
             self.isConnected = true
             self.isLoading = false
             
+            LiveActivityManager.shared.updateLiveActivity(reading: reading, history: storage.cachedGlucoseHistory)
+            
             #if canImport(WidgetKit)
             WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
             #endif
@@ -108,6 +110,8 @@ public final class AppViewModel: ObservableObject {
             self.isConnected = true
             self.isLoading = false
             
+            LiveActivityManager.shared.updateLiveActivity(reading: reading, history: storage.cachedGlucoseHistory)
+            
             #if canImport(WidgetKit)
             WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
             #endif
@@ -118,6 +122,7 @@ public final class AppViewModel: ObservableObject {
     }
     
     public func disconnect() {
+        LiveActivityManager.shared.endLiveActivity()
         keychain.clearAll()
         storage.clearAll()
         

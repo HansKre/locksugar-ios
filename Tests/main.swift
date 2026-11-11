@@ -538,4 +538,26 @@ runTest("TimelineScheduler.calculateNextReloadDate") {
     assertEqual(Int(reloadNil.timeIntervalSince(now)), 5 * 60)
 }
 
+runTest("GlucoseReading.deltaCalculation") {
+    let now = Date()
+    let current = GlucoseReading(value: 112, valueInMgPerDl: 112, glucoseUnits: .mgPerDl, timestamp: now)
+    let prev1 = GlucoseReading(value: 114, valueInMgPerDl: 114, glucoseUnits: .mgPerDl, timestamp: now.addingTimeInterval(-5 * 60))
+    let prev2 = GlucoseReading(value: 110, valueInMgPerDl: 110, glucoseUnits: .mgPerDl, timestamp: now.addingTimeInterval(-10 * 60))
+    
+    // Negative delta (-2)
+    let deltaNeg = GlucoseReading.calculateDelta(current: current, history: [prev2, prev1])
+    assertEqual(deltaNeg, -2.0)
+    assertEqual(GlucoseReading.formatDelta(deltaNeg), "-2")
+    
+    // Positive delta (+4)
+    let deltaPos = GlucoseReading.calculateDelta(current: prev1, history: [prev2])
+    assertEqual(deltaPos, 4.0)
+    assertEqual(GlucoseReading.formatDelta(deltaPos), "+4")
+    
+    // Fallback for empty history
+    let deltaEmpty = GlucoseReading.calculateDelta(current: current, history: [])
+    assertEqual(deltaEmpty, nil)
+    assertEqual(GlucoseReading.formatDelta(deltaEmpty), "--")
+}
+
 print("=== All Tests Passed Successfully ===")

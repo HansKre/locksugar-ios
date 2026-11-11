@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		0533D0FCF100627F1879470E /* LockSugarCircularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA3499585112A723204EF0F /* LockSugarCircularView.swift */; };
+		F1A1B2C3D4E5F60100000002 /* GlucoseActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1B2C3D4E5F60100000001 /* GlucoseActivityAttributes.swift */; };
+		F1A1B2C3D4E5F60100000003 /* GlucoseActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1B2C3D4E5F60100000001 /* GlucoseActivityAttributes.swift */; };
+		F2A1B2C3D4E5F60100000002 /* LockSugarLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A1B2C3D4E5F60100000001 /* LockSugarLiveActivity.swift */; };
+		F3A1B2C3D4E5F60100000002 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A1B2C3D4E5F60100000001 /* LiveActivityManager.swift */; };
+		A1B2C3D4E5F6012345678901 /* LockSugarSystemSmallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678902 /* LockSugarSystemSmallView.swift */; };
 		08B8DC06F4B5865C3435327D /* LockSugarInlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AF96AFDA8EF1711AAD8DC4 /* LockSugarInlineView.swift */; };
 		0B6E7154FD6E8D97C1769816 /* SharedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65623AA06ED550DD61C27B1C /* SharedStorage.swift */; };
 		0BAA9C626CF4711B6C9A6103 /* LockSugarWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9A367595782765F550E5CF53 /* LockSugarWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -88,6 +93,10 @@
 		6BA3499585112A723204EF0F /* LockSugarCircularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarCircularView.swift; sourceTree = "<group>"; };
 		7F624EF8E942E759674DAA8F /* CryptoUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUtils.swift; sourceTree = "<group>"; };
 		8A8C8307D2DB9148DCE2F297 /* LockSugarRectangularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarRectangularView.swift; sourceTree = "<group>"; };
+		F1A1B2C3D4E5F60100000001 /* GlucoseActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseActivityAttributes.swift; sourceTree = "<group>"; };
+		F2A1B2C3D4E5F60100000001 /* LockSugarLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarLiveActivity.swift; sourceTree = "<group>"; };
+		F3A1B2C3D4E5F60100000001 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678902 /* LockSugarSystemSmallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarSystemSmallView.swift; sourceTree = "<group>"; };
 		9A367595782765F550E5CF53 /* LockSugarWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LockSugarWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1F1D90B68641411DD401EDB /* WidgetSetupInstructionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSetupInstructionsView.swift; sourceTree = "<group>"; };
 		C35897AA5AF05538A1843BAD /* LockSugar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LockSugar.entitlements; sourceTree = "<group>"; };
@@ -107,6 +116,7 @@
 			children = (
 				02810BCFE26B0C8140BCD629 /* GlucoseReading.swift */,
 				ECE42ACE8637B2D3CFED4CCD /* LibreLinkUpResponses.swift */,
+				F1A1B2C3D4E5F60100000001 /* GlucoseActivityAttributes.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -142,6 +152,7 @@
 				07CB5E55B2347BB6D0402CBB /* LockSugarWidget.entitlements */,
 				4FBA547C759F68582A788A0A /* LockSugarWidget.swift */,
 				E3CD2494A83E2270457FC23E /* LockSugarWidgetBundle.swift */,
+				F2A1B2C3D4E5F60100000001 /* LockSugarLiveActivity.swift */,
 				C8746DCE3EBC01F8426438F5 /* Views */,
 			);
 			path = LockSugarWidget;
@@ -192,6 +203,7 @@
 				6BA3499585112A723204EF0F /* LockSugarCircularView.swift */,
 				06AF96AFDA8EF1711AAD8DC4 /* LockSugarInlineView.swift */,
 				8A8C8307D2DB9148DCE2F297 /* LockSugarRectangularView.swift */,
+				A1B2C3D4E5F6012345678902 /* LockSugarSystemSmallView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -200,6 +212,7 @@
 			isa = PBXGroup;
 			children = (
 				12ED22B90876ACB7EAF747A3 /* AppViewModel.swift */,
+				F3A1B2C3D4E5F60100000001 /* LiveActivityManager.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -358,9 +371,12 @@
 				0533D0FCF100627F1879470E /* LockSugarCircularView.swift in Sources */,
 				08B8DC06F4B5865C3435327D /* LockSugarInlineView.swift in Sources */,
 				1A107F56F17D701510AD393A /* LockSugarRectangularView.swift in Sources */,
+				A1B2C3D4E5F6012345678901 /* LockSugarSystemSmallView.swift in Sources */,
 				C8D42362C6DCB72055789058 /* LockSugarWidget.swift in Sources */,
 				C68D452B8AF5C056FC5D0C46 /* LockSugarWidgetBundle.swift in Sources */,
 				8A042371E11B17118F6C16B6 /* SharedStorage.swift in Sources */,
+				F1A1B2C3D4E5F60100000003 /* GlucoseActivityAttributes.swift in Sources */,
+				F2A1B2C3D4E5F60100000002 /* LockSugarLiveActivity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,6 +394,8 @@
 				119BF9B0BA597DB8A01B34CF /* LockSugarApp.swift in Sources */,
 				0B6E7154FD6E8D97C1769816 /* SharedStorage.swift in Sources */,
 				350E9DE4B28D79FB15848AD4 /* WidgetSetupInstructionsView.swift in Sources */,
+				F1A1B2C3D4E5F60100000002 /* GlucoseActivityAttributes.swift in Sources */,
+				F3A1B2C3D4E5F60100000002 /* LiveActivityManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

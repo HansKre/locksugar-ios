@@ -177,29 +177,42 @@ public struct LockSugarRectangularView: View {
         forecastLinePoints.append(contentsOf: forecast)
         forecastBandPoints.append(contentsOf: forecast)
         
-        // Calculate dynamic Y-axis bounds
-        var allValues = recent.map(\.valueInMgPerDl)
+        // Calculate dynamic Y-axis bounds fitted to displayed data range
+        var displayedValues = recent.map(\.valueInMgPerDl)
+        if displayedValues.isEmpty {
+            if let reading = reading {
+                displayedValues = [reading.valueInMgPerDl]
+            } else {
+                displayedValues = [targetLow, targetHigh]
+            }
+        }
+        
+        // Include forecast points so the forecast cone is accommodated
+        var allValues = displayedValues
         allValues.append(contentsOf: forecast.map(\.value))
         allValues.append(contentsOf: forecast.map(\.lowerBound))
         allValues.append(contentsOf: forecast.map(\.upperBound))
-        allValues.append(targetLow)
-        allValues.append(targetHigh)
         
-        let minVal = allValues.min() ?? 60.0
-        let maxVal = allValues.max() ?? 160.0
+        var minVal = allValues.min() ?? 70.0
+        var maxVal = allValues.max() ?? 180.0
         
-        // Target nice standard ticks matching screenshot: 60, 110, 160
-        let yAxisMin = max(40.0, floor((minVal - 10.0) / 10.0) * 10.0)
-        let yAxisMax = min(350.0, ceil((maxVal + 15.0) / 10.0) * 10.0)
-        
-        let yAxisTicks: [Int]
-        if yAxisMax <= 180 && yAxisMin >= 50 {
-            yAxisTicks = [60, 110, 160]
-        } else {
-            let step = (yAxisMax - yAxisMin) / 2.0
-            let mid = round((yAxisMin + step) / 10.0) * 10.0
-            yAxisTicks = [Int(yAxisMin), Int(mid), Int(yAxisMax)]
+        // Enforce a minimum span (40 mg/dL) so small fluctuations do not exaggerate the curve
+        let span = maxVal - minVal
+        if span < 40.0 {
+            let mid = (minVal + maxVal) / 2.0
+            minVal = mid - 20.0
+            maxVal = mid + 20.0
         }
+        
+        // Dynamic padding (~10 mg/dL) to give the curve comfortable breathing room
+        let padding = 10.0
+        let yAxisMin = max(40.0, floor((minVal - padding) / 10.0) * 10.0)
+        let yAxisMax = min(400.0, ceil((maxVal + padding) / 10.0) * 10.0)
+        
+        // Calculate 3 clean, balanced ticks: min, mid, max
+        let step = (yAxisMax - yAxisMin) / 2.0
+        let mid = round((yAxisMin + step) / 10.0) * 10.0
+        let yAxisTicks = [Int(yAxisMin), Int(mid), Int(yAxisMax)]
         
         return PreparedChartData(
             recentHistory: recent,

@@ -4,8 +4,10 @@ Ultra-minimalist native iOS application and Lock Screen WidgetKit accessory disp
 
 ## Overview
 
-- **Main App**: Configuration utility to securely store LibreLinkUp credentials in the device Keychain, test connection, and show Lock Screen widget setup instructions.
-- **Lock Screen Widget**: Sits in iOS Lock Screen accessory slots (`accessoryCircular`, `accessoryInline`, `accessoryRectangular`), displaying **only the current glucose number** with zero clutter.
+- **Main App**: Configuration utility to securely store LibreLinkUp credentials in the device Keychain, test connection, and show widget setup instructions for Lock Screen and Apple CarPlay.
+- **Widgets**:
+  - **Apple CarPlay & Home Screen (`systemSmall`)**: Driver-optimized card displaying glucose value, directional trend arrow, reading time, delta change, and a vertical target range gauge on an adaptive emerald green container background.
+  - **Lock Screen Accessories (`accessoryCircular`, `accessoryInline`, `accessoryRectangular`)**: Ultra-glanceable glucose numbers and trend charts directly on your Lock Screen.
 
 ## Project Structure
 

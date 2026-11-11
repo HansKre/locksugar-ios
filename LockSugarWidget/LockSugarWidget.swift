@@ -125,7 +125,12 @@ struct LockSugarWidgetEntryView: View {
                     targetHigh: entry.targetHigh
                 )
             case .systemSmall:
-                LockSugarSmallView(reading: entry.reading)
+                LockSugarSmallView(
+                    reading: entry.reading,
+                    history: entry.history,
+                    targetLow: entry.targetLow,
+                    targetHigh: entry.targetHigh
+                )
             case .systemMedium:
                 LockSugarMediumView(
                     reading: entry.reading,
@@ -138,16 +143,31 @@ struct LockSugarWidgetEntryView: View {
                 LockSugarCircularView(reading: entry.reading)
             }
         }
-        .applyContainerBackgroundIfAvailable()
+        .applyContainerBackgroundIfAvailable(family: family, reading: entry.reading)
     }
 }
 
 private extension View {
     @ViewBuilder
-    func applyContainerBackgroundIfAvailable() -> some View {
+    func applyContainerBackgroundIfAvailable(family: WidgetFamily, reading: GlucoseReading?) -> some View {
         if #available(iOS 17.0, *) {
-            self.containerBackground(for: .widget) {
-                Color(UIColor.secondarySystemBackground)
+            switch family {
+            case .accessoryCircular, .accessoryInline, .accessoryRectangular:
+                self.containerBackground(for: .widget) {
+                    Color.clear
+                }
+            case .systemSmall:
+                self.containerBackground(for: .widget) {
+                    Color.containerBackground(for: reading?.zone ?? .normal)
+                }
+            case .systemMedium:
+                self.containerBackground(for: .widget) {
+                    Color(UIColor.secondarySystemBackground)
+                }
+            default:
+                self.containerBackground(for: .widget) {
+                    Color(UIColor.secondarySystemBackground)
+                }
             }
         } else {
             self
