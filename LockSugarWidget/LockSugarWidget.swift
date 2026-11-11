@@ -124,6 +124,16 @@ struct LockSugarWidgetEntryView: View {
                     targetLow: entry.targetLow,
                     targetHigh: entry.targetHigh
                 )
+            case .systemSmall:
+                LockSugarSmallView(reading: entry.reading)
+            case .systemMedium:
+                LockSugarMediumView(
+                    reading: entry.reading,
+                    history: entry.history,
+                    forecast: entry.forecast,
+                    targetLow: entry.targetLow,
+                    targetHigh: entry.targetHigh
+                )
             default:
                 LockSugarCircularView(reading: entry.reading)
             }
@@ -137,7 +147,7 @@ private extension View {
     func applyContainerBackgroundIfAvailable() -> some View {
         if #available(iOS 17.0, *) {
             self.containerBackground(for: .widget) {
-                Color.clear
+                Color(UIColor.secondarySystemBackground)
             }
         } else {
             self
@@ -155,11 +165,13 @@ public struct LockSugarWidget: Widget {
             LockSugarWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("LockSugar")
-        .description("Ultra-minimalist glucose reading on your Lock Screen.")
+        .description("Ultra-minimalist glucose reading on your Lock Screen and Home Screen.")
         .supportedFamilies([
             .accessoryCircular,
             .accessoryInline,
-            .accessoryRectangular
+            .accessoryRectangular,
+            .systemSmall,
+            .systemMedium
         ])
     }
 }

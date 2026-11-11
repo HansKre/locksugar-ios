@@ -94,16 +94,6 @@ public struct LockSugarRectangularView: View {
                 .foregroundStyle(lineColor.opacity(0.18))
             }
             
-            // Forecast Projection Line (Dashed)
-            ForEach(chartData.forecastLine) { point in
-                LineMark(
-                    x: .value("Time", point.timestamp),
-                    y: .value("Glucose", point.value)
-                )
-                .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [3, 2]))
-                .foregroundStyle(lineColor)
-            }
-            
             // Historical Readings Curve (Solid)
             ForEach(chartData.recentHistory, id: \.timestamp) { item in
                 LineMark(
@@ -219,5 +209,38 @@ public struct LockSugarRectangularView: View {
             yAxisMax: yAxisMax,
             yAxisTicks: yAxisTicks
         )
+    }
+}
+
+public struct LockSugarMediumView: View {
+    public let reading: GlucoseReading?
+    public let history: [GlucoseReading]
+    public let forecast: [GlucoseForecastPoint]
+    public let targetLow: Double
+    public let targetHigh: Double
+    
+    public init(
+        reading: GlucoseReading?,
+        history: [GlucoseReading] = [],
+        forecast: [GlucoseForecastPoint] = [],
+        targetLow: Double = GlucoseZone.defaultTargetLow,
+        targetHigh: Double = GlucoseZone.defaultTargetHigh
+    ) {
+        self.reading = reading
+        self.history = history
+        self.forecast = forecast
+        self.targetLow = targetLow
+        self.targetHigh = targetHigh
+    }
+    
+    public var body: some View {
+        LockSugarRectangularView(
+            reading: reading,
+            history: history,
+            forecast: forecast,
+            targetLow: targetLow,
+            targetHigh: targetHigh
+        )
+        .padding(4)
     }
 }

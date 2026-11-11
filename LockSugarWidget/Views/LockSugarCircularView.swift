@@ -46,3 +46,71 @@ public struct LockSugarCircularView: View {
         }
     }
 }
+
+public struct LockSugarSmallView: View {
+    public let reading: GlucoseReading?
+    
+    public init(reading: GlucoseReading?) {
+        self.reading = reading
+    }
+    
+    public var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            // Header: Status dot, zone label and timestamp
+            HStack {
+                if let reading = reading {
+                    Circle()
+                        .fill(reading.zoneColor)
+                        .frame(width: 8, height: 8)
+                    Text(reading.zone.label)
+                        .font(.caption2.bold())
+                        .foregroundColor(reading.zoneColor)
+                    Spacer()
+                    Text(reading.formattedTime)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("No Data")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+            }
+            
+            Spacer()
+            
+            // Value + Trend Arrow
+            if let reading = reading {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(reading.formattedValue)
+                        .font(.system(size: 44, weight: .bold, design: .rounded))
+                        .foregroundColor(reading.zoneColor)
+                    
+                    Text(reading.trendArrowSymbol)
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundColor(reading.zoneColor)
+                }
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+                
+                HStack(spacing: 4) {
+                    Text(reading.glucoseUnits.label)
+                        .font(.caption.weight(.medium))
+                        .foregroundColor(.secondary)
+                    if reading.isStale() {
+                        Text("• stale")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                    }
+                }
+            } else {
+                Text("---")
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+        }
+        .padding(4)
+    }
+}

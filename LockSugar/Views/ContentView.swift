@@ -158,7 +158,7 @@ public struct ContentView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.blue)
+                        .background(Color(red: 0.38, green: 0.56, blue: 0.84))
                         .foregroundColor(.white)
                         .cornerRadius(12)
                 }
