@@ -72,21 +72,22 @@ runTest("GlucoseReading.unitFormatting") {
     )
     assertEqual(mgReading.formattedValue, "124")
     
-    let mmolReading = GlucoseReading(
+    // Always formatted as integer without float part
+    let floatReading = GlucoseReading(
         value: 6.9,
         valueInMgPerDl: 124,
         glucoseUnits: .mmolPerL,
         timestamp: Date()
     )
-    assertEqual(mmolReading.formattedValue, "6.9")
+    assertEqual(floatReading.formattedValue, "7")
     
-    let mmolEvenReading = GlucoseReading(
+    let floatEvenReading = GlucoseReading(
         value: 5.0,
         valueInMgPerDl: 90,
         glucoseUnits: .mmolPerL,
         timestamp: Date()
     )
-    assertEqual(mmolEvenReading.formattedValue, "5.0")
+    assertEqual(floatEvenReading.formattedValue, "5")
 }
 
 runTest("GlucoseReading.staleness") {
@@ -233,7 +234,7 @@ runTest("LibreLinkUpResponses.decodeGraph") {
     
     let reading = GlucoseReading(measurement: measurement!)
     assertTrue(reading != nil)
-    assertEqual(reading?.formattedValue, "182.0")
+    assertEqual(reading?.formattedValue, "182")
 }
 
 runTest("KeychainHelper.inMemory") {

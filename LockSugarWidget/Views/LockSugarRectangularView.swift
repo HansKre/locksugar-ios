@@ -40,7 +40,8 @@ public struct LockSugarRectangularView: View {
                 HStack(alignment: .firstTextBaseline, spacing: 3) {
                     Text(reading.formattedValue)
                         .font(.system(size: 19, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(reading.zoneColor)
+                        .widgetAccentable()
                     
                     Text(reading.trendArrowSymbol)
                         .font(.system(size: 16, weight: .bold, design: .rounded))

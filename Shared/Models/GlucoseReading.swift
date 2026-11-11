@@ -255,16 +255,10 @@ public struct GlucoseReading: Codable, Equatable {
         self.isLow = isLow
     }
     
-    /// Formatted glucose display text adhering to Lock Screen typography rules:
-    /// - Integer values (typically mg/dL): formatted as whole numbers (e.g. "124")
-    /// - Decimal values (typically mmol/L): formatted with 1 decimal place (e.g. "6.9")
+    /// Formatted glucose display text:
+    /// Always formatted as a rounded integer without float/decimal part across all widgets and screens.
     public var formattedValue: String {
-        switch glucoseUnits {
-        case .mgPerDl:
-            return "\(Int(round(value)))"
-        case .mmolPerL:
-            return String(format: "%.1f", value)
-        }
+        "\(Int(round(value)))"
     }
     
     /// Trend arrow symbol based on LibreLinkUp API definitions (1-5):

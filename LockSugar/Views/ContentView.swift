@@ -88,6 +88,10 @@ public struct ContentView: View {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text(reading.formattedValue)
                             .font(.system(size: 64, weight: .bold, design: .rounded))
+                            .foregroundColor(reading.zoneColor)
+                        Text(reading.trendArrowSymbol)
+                            .font(.system(size: 40, weight: .bold, design: .rounded))
+                            .foregroundColor(reading.zoneColor)
                         Text(reading.glucoseUnits.label)
                             .font(.title2.weight(.medium))
                             .foregroundColor(.secondary)
@@ -150,7 +154,7 @@ public struct ContentView: View {
                 Button {
                     viewModel.showingInstructions = true
                 } label: {
-                    Label("Lock Screen Widget Setup", systemImage: "questionmark.circle.fill")
+                    Label("How to Lock Screen Widget", systemImage: "questionmark.circle.fill")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()

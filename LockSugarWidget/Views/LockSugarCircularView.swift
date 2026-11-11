@@ -15,7 +15,8 @@ public struct LockSugarCircularView: View {
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
                         Text(reading.formattedValue)
                             .font(.system(size: 24, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
+                            .foregroundColor(reading.zoneColor)
+                            .widgetAccentable()
                         
                         Text(reading.trendArrowSymbol)
                             .font(.system(size: 18, weight: .bold, design: .rounded))

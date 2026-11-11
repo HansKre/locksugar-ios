@@ -56,36 +56,10 @@ public struct WidgetSetupInstructionsView: View {
                             description: "Tap Done in the top-right corner to activate your glucose display."
                         )
                     }
-                    
-                    // Widget Slots Preview
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Supported Widget Styles")
-                            .font(.headline)
-                        
-                        HStack(spacing: 16) {
-                            widgetStyleCard(
-                                title: "Inline",
-                                subtitle: "Above Clock",
-                                sample: "124"
-                            )
-                            
-                            widgetStyleCard(
-                                title: "Circular",
-                                subtitle: "Below Clock",
-                                sample: "124"
-                            )
-                            
-                            widgetStyleCard(
-                                title: "Rectangular",
-                                subtitle: "Wide Slot",
-                                sample: "124"
-                            )
-                        }
-                    }
-                    .padding(.top, 8)
                 }
                 .padding(20)
             }
+            .navigationTitle("How to Lock Screen Widget")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -119,29 +93,6 @@ public struct WidgetSetupInstructionsView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(UIColor.secondarySystemBackground))
-        .cornerRadius(12)
-    }
-    
-    private func widgetStyleCard(title: String, subtitle: String, sample: String) -> some View {
-        VStack(spacing: 8) {
-            Text(title)
-                .font(.caption.bold())
-            
-            ZStack {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.primary.opacity(0.08))
-                    .frame(height: 54)
-                Text(sample)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-            }
-            
-            Text(subtitle)
-                .font(.caption2)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(10)
         .background(Color(UIColor.secondarySystemBackground))
         .cornerRadius(12)
     }
