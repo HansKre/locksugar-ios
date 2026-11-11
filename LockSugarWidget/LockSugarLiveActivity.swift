@@ -19,7 +19,8 @@ public struct LockSugarLiveActivity: Widget {
             
             LockSugarSmallView(
                 reading: reading,
-                history: []
+                history: [],
+                delta: context.state.delta
             )
             .padding(.horizontal, 4)
             .activityBackgroundTint(Color.containerBackground(for: context.state.zone))
@@ -75,6 +76,17 @@ public struct LockSugarLiveActivity: Widget {
                     .font(.caption.bold())
                     .foregroundColor(zoneColor)
             }
+        }
+        .supplementalActivityFamiliesIfAvailable()
+    }
+}
+
+private extension WidgetConfiguration {
+    func supplementalActivityFamiliesIfAvailable() -> some WidgetConfiguration {
+        if #available(iOS 18.0, *) {
+            return self.supplementalActivityFamilies([.small])
+        } else {
+            return self
         }
     }
 }

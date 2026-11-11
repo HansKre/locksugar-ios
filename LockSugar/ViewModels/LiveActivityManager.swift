@@ -8,6 +8,7 @@ public final class LiveActivityManager: ObservableObject {
     public static let shared = LiveActivityManager()
     
     @Published public private(set) var isLiveActivityActive: Bool = false
+    @Published public var errorMessage: String? = nil
     
     #if canImport(ActivityKit)
     private var currentActivity: Activity<GlucoseActivityAttributes>? = nil
@@ -25,7 +26,12 @@ public final class LiveActivityManager: ObservableObject {
     public func startLiveActivity(reading: GlucoseReading, history: [GlucoseReading] = []) {
         #if canImport(ActivityKit)
         guard #available(iOS 16.1, *) else { return }
-        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        self.errorMessage = nil
+        
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+            self.errorMessage = "Live Activities are disabled in iOS Settings. Please enable them in Settings > Apps > LockSugar."
+            return
+        }
         
         let delta = GlucoseReading.calculateDelta(current: reading, history: history)
         let state = GlucoseActivityAttributes.ContentState(
@@ -57,6 +63,7 @@ public final class LiveActivityManager: ObservableObject {
             self.currentActivity = activity
             self.isLiveActivityActive = true
         } catch {
+            self.errorMessage = "Failed to start Live Activity: \(error.localizedDescription)"
             print("Failed to start Live Activity: \(error.localizedDescription)")
         }
         #endif

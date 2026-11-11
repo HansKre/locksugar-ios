@@ -16,6 +16,9 @@ public struct ContentView: View {
                     if let error = viewModel.errorMessage {
                         errorBanner(error)
                     }
+                    if let liveActivityError = liveActivityManager.errorMessage {
+                        errorBanner(liveActivityError)
+                    }
                     
                     if viewModel.isConnected {
                         connectedView(viewModel.lastReading)

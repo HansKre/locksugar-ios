@@ -5,5 +5,8 @@ import SwiftUI
 struct LockSugarWidgetBundle: WidgetBundle {
     var body: some Widget {
         LockSugarWidget()
+        #if canImport(ActivityKit)
+        LockSugarLiveActivity()
+        #endif
     }
 }
