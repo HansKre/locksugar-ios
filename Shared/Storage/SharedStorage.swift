@@ -17,6 +17,7 @@ public final class SharedStorage {
         public static let targetLow = "locksugar_target_low"
         public static let targetHigh = "locksugar_target_high"
         public static let lastSyncTimestamp = "locksugar_last_sync_timestamp"
+        public static let dynamicYAxisEnabled = "locksugar_dynamic_yaxis_enabled"
     }
     
     public let userDefaults: UserDefaults
@@ -106,6 +107,18 @@ public final class SharedStorage {
         set { userDefaults.set(newValue, forKey: Key.lastSyncTimestamp) }
     }
     
+    public var isDynamicYAxisEnabled: Bool {
+        get {
+            if userDefaults.object(forKey: Key.dynamicYAxisEnabled) == nil {
+                return true // default to calibrated Y-axis range
+            }
+            return userDefaults.bool(forKey: Key.dynamicYAxisEnabled)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Key.dynamicYAxisEnabled)
+        }
+    }
+    
     public func clearAll() {
         userDefaults.removeObject(forKey: Key.accountIdHash)
         userDefaults.removeObject(forKey: Key.patientId)
@@ -116,5 +129,6 @@ public final class SharedStorage {
         userDefaults.removeObject(forKey: Key.targetLow)
         userDefaults.removeObject(forKey: Key.targetHigh)
         userDefaults.removeObject(forKey: Key.lastSyncTimestamp)
+        userDefaults.removeObject(forKey: Key.dynamicYAxisEnabled)
     }
 }

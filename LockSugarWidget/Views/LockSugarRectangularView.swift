@@ -8,19 +8,22 @@ public struct LockSugarRectangularView: View {
     public let forecast: [GlucoseForecastPoint]
     public let targetLow: Double
     public let targetHigh: Double
+    public let isDynamicYAxisEnabled: Bool
     
     public init(
         reading: GlucoseReading?,
         history: [GlucoseReading] = [],
         forecast: [GlucoseForecastPoint] = [],
         targetLow: Double = GlucoseZone.defaultTargetLow,
-        targetHigh: Double = GlucoseZone.defaultTargetHigh
+        targetHigh: Double = GlucoseZone.defaultTargetHigh,
+        isDynamicYAxisEnabled: Bool = true
     ) {
         self.reading = reading
         self.history = history
         self.forecast = forecast
         self.targetLow = targetLow
         self.targetHigh = targetHigh
+        self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
     }
     
     public var body: some View {
@@ -177,42 +180,53 @@ public struct LockSugarRectangularView: View {
         forecastLinePoints.append(contentsOf: forecast)
         forecastBandPoints.append(contentsOf: forecast)
         
-        // Calculate dynamic Y-axis bounds fitted to displayed data range
-        var displayedValues = recent.map(\.valueInMgPerDl)
-        if displayedValues.isEmpty {
-            if let reading = reading {
-                displayedValues = [reading.valueInMgPerDl]
+        let yAxisMin: Double
+        let yAxisMax: Double
+        let yAxisTicks: [Int]
+        
+        if isDynamicYAxisEnabled {
+            // Current calibrated Y-axis: (min - 5) to (max + 5) of the actually available values
+            var availableValues = recent.map(\.valueInMgPerDl)
+            if availableValues.isEmpty {
+                if let reading = reading {
+                    availableValues = [reading.valueInMgPerDl]
+                } else {
+                    availableValues = [targetLow, targetHigh]
+                }
+            }
+            
+            let minVal = availableValues.min() ?? 70.0
+            let maxVal = availableValues.max() ?? 180.0
+            
+            yAxisMin = max(0.0, minVal - 5.0)
+            yAxisMax = min(500.0, maxVal + 5.0)
+            
+            let step = (yAxisMax - yAxisMin) / 2.0
+            let mid = yAxisMin + step
+            yAxisTicks = [Int(round(yAxisMin)), Int(round(mid)), Int(round(yAxisMax))]
+        } else {
+            // Previous Y-axis: broad range including targets (70-180) and forecast bounds
+            var allValues = recent.map(\.valueInMgPerDl)
+            allValues.append(contentsOf: forecast.map(\.value))
+            allValues.append(contentsOf: forecast.map(\.lowerBound))
+            allValues.append(contentsOf: forecast.map(\.upperBound))
+            allValues.append(targetLow)
+            allValues.append(targetHigh)
+            
+            let minVal = allValues.min() ?? 60.0
+            let maxVal = allValues.max() ?? 160.0
+            
+            yAxisMin = max(40.0, floor((minVal - 10.0) / 10.0) * 10.0)
+            yAxisMax = min(350.0, ceil((maxVal + 15.0) / 10.0) * 10.0)
+            
+            if yAxisMax <= 180 && yAxisMin >= 50 {
+                yAxisTicks = [60, 110, 160]
             } else {
-                displayedValues = [targetLow, targetHigh]
+                let step = (yAxisMax - yAxisMin) / 2.0
+                let mid = round((yAxisMin + step) / 10.0) * 10.0
+                yAxisTicks = [Int(yAxisMin), Int(mid), Int(yAxisMax)]
             }
         }
-        
-        // Include forecast points so the forecast cone is accommodated
-        var allValues = displayedValues
-        allValues.append(contentsOf: forecast.map(\.value))
-        allValues.append(contentsOf: forecast.map(\.lowerBound))
-        allValues.append(contentsOf: forecast.map(\.upperBound))
-        
-        var minVal = allValues.min() ?? 70.0
-        var maxVal = allValues.max() ?? 180.0
-        
-        // Enforce a minimum span (40 mg/dL) so small fluctuations do not exaggerate the curve
-        let span = maxVal - minVal
-        if span < 40.0 {
-            let mid = (minVal + maxVal) / 2.0
-            minVal = mid - 20.0
-            maxVal = mid + 20.0
-        }
-        
-        // Dynamic padding (~10 mg/dL) to give the curve comfortable breathing room
-        let padding = 10.0
-        let yAxisMin = max(40.0, floor((minVal - padding) / 10.0) * 10.0)
-        let yAxisMax = min(400.0, ceil((maxVal + padding) / 10.0) * 10.0)
-        
-        // Calculate 3 clean, balanced ticks: min, mid, max
-        let step = (yAxisMax - yAxisMin) / 2.0
-        let mid = round((yAxisMin + step) / 10.0) * 10.0
-        let yAxisTicks = [Int(yAxisMin), Int(mid), Int(yAxisMax)]
         
         return PreparedChartData(
             recentHistory: recent,
@@ -231,19 +245,22 @@ public struct LockSugarMediumView: View {
     public let forecast: [GlucoseForecastPoint]
     public let targetLow: Double
     public let targetHigh: Double
+    public let isDynamicYAxisEnabled: Bool
     
     public init(
         reading: GlucoseReading?,
         history: [GlucoseReading] = [],
         forecast: [GlucoseForecastPoint] = [],
         targetLow: Double = GlucoseZone.defaultTargetLow,
-        targetHigh: Double = GlucoseZone.defaultTargetHigh
+        targetHigh: Double = GlucoseZone.defaultTargetHigh,
+        isDynamicYAxisEnabled: Bool = true
     ) {
         self.reading = reading
         self.history = history
         self.forecast = forecast
         self.targetLow = targetLow
         self.targetHigh = targetHigh
+        self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
     }
     
     public var body: some View {
@@ -252,7 +269,8 @@ public struct LockSugarMediumView: View {
             history: history,
             forecast: forecast,
             targetLow: targetLow,
-            targetHigh: targetHigh
+            targetHigh: targetHigh,
+            isDynamicYAxisEnabled: isDynamicYAxisEnabled
         )
         .padding(4)
     }

@@ -13,6 +13,7 @@ public final class AppViewModel: ObservableObject {
     @Published public var lastReading: GlucoseReading? = nil
     @Published public var isConnected: Bool = false
     @Published public var showingInstructions: Bool = false
+    @Published public var isDynamicYAxisEnabled: Bool = true
     
     public let client: LibreLinkUpClient
     public let keychain: KeychainManaging
@@ -35,6 +36,7 @@ public final class AppViewModel: ObservableObject {
             self.password = storedPassword
         }
         self.lastReading = storage.cachedGlucoseReading
+        self.isDynamicYAxisEnabled = storage.isDynamicYAxisEnabled
         let hasCredentials = (keychain.get(KeychainHelper.Key.email) != nil && keychain.get(KeychainHelper.Key.password) != nil)
         let hasToken = (keychain.get(KeychainHelper.Key.jwtToken) != nil || keychain.get(KeychainHelper.Key.password) != nil) && storage.patientId != nil
         self.isConnected = hasCredentials || hasToken
@@ -119,6 +121,14 @@ public final class AppViewModel: ObservableObject {
             self.isLoading = false
             self.errorMessage = error.localizedDescription
         }
+    }
+    
+    public func setDynamicYAxisEnabled(_ enabled: Bool) {
+        self.isDynamicYAxisEnabled = enabled
+        storage.isDynamicYAxisEnabled = enabled
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
+        #endif
     }
     
     public func disconnect() {

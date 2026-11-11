@@ -8,6 +8,7 @@ public struct GlucoseEntry: TimelineEntry {
     public let forecast: [GlucoseForecastPoint]
     public let targetLow: Double
     public let targetHigh: Double
+    public let isDynamicYAxisEnabled: Bool
     
     public init(
         date: Date,
@@ -15,7 +16,8 @@ public struct GlucoseEntry: TimelineEntry {
         history: [GlucoseReading] = [],
         forecast: [GlucoseForecastPoint] = [],
         targetLow: Double = GlucoseZone.defaultTargetLow,
-        targetHigh: Double = GlucoseZone.defaultTargetHigh
+        targetHigh: Double = GlucoseZone.defaultTargetHigh,
+        isDynamicYAxisEnabled: Bool = true
     ) {
         self.date = date
         self.reading = reading
@@ -23,6 +25,7 @@ public struct GlucoseEntry: TimelineEntry {
         self.forecast = forecast
         self.targetLow = targetLow
         self.targetHigh = targetHigh
+        self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
     }
 }
 
@@ -48,7 +51,8 @@ public struct GlucoseTimelineProvider: TimelineProvider {
             history: history,
             forecast: forecast,
             targetLow: storage.targetLow ?? GlucoseZone.defaultTargetLow,
-            targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh
+            targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh,
+            isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled
         )
     }
     
@@ -66,7 +70,8 @@ public struct GlucoseTimelineProvider: TimelineProvider {
             history: history,
             forecast: forecast,
             targetLow: storage.targetLow ?? GlucoseZone.defaultTargetLow,
-            targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh
+            targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh,
+            isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled
         )
         completion(entry)
     }
@@ -91,7 +96,8 @@ public struct GlucoseTimelineProvider: TimelineProvider {
                 history: history,
                 forecast: forecast,
                 targetLow: storage.targetLow ?? GlucoseZone.defaultTargetLow,
-                targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh
+                targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh,
+                isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled
             )
             let reloadDate = TimelineScheduler.calculateNextReloadDate(for: reading?.timestamp, from: Date())
             
@@ -122,7 +128,8 @@ struct LockSugarWidgetEntryView: View {
                     history: entry.history,
                     forecast: entry.forecast,
                     targetLow: entry.targetLow,
-                    targetHigh: entry.targetHigh
+                    targetHigh: entry.targetHigh,
+                    isDynamicYAxisEnabled: entry.isDynamicYAxisEnabled
                 )
             case .systemSmall:
                 LockSugarSmallView(
@@ -137,7 +144,8 @@ struct LockSugarWidgetEntryView: View {
                     history: entry.history,
                     forecast: entry.forecast,
                     targetLow: entry.targetLow,
-                    targetHigh: entry.targetHigh
+                    targetHigh: entry.targetHigh,
+                    isDynamicYAxisEnabled: entry.isDynamicYAxisEnabled
                 )
             default:
                 LockSugarCircularView(reading: entry.reading)

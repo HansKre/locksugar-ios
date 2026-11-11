@@ -130,6 +130,27 @@ public struct ContentView: View {
             .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(16)
             
+            // Chart Settings
+            VStack(alignment: .leading, spacing: 10) {
+                Toggle(isOn: Binding(
+                    get: { viewModel.isDynamicYAxisEnabled },
+                    set: { viewModel.setDynamicYAxisEnabled($0) }
+                )) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Calibrate Y-Axis to Data")
+                            .font(.subheadline.bold())
+                        Text(viewModel.isDynamicYAxisEnabled
+                            ? "Calibrated: (min - 5) to (max + 5) of actual readings"
+                            : "Standard: Fixed range including target bounds (70–180)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .padding(16)
+            .background(Color(UIColor.secondarySystemBackground))
+            .cornerRadius(16)
+            
             // Actions
             VStack(spacing: 12) {
                 Button {

@@ -305,11 +305,19 @@ runTest("SharedStorage.historyAndTargets") {
     assertEqual(storage.cachedGlucoseHistory[0].valueInMgPerDl, 110.0)
     assertEqual(storage.cachedGlucoseHistory[1].valueInMgPerDl, 115.0)
     
+    // Test dynamic Y-axis setting
+    assertTrue(storage.isDynamicYAxisEnabled == true) // Default true
+    storage.isDynamicYAxisEnabled = false
+    assertEqual(storage.isDynamicYAxisEnabled, false)
+    storage.isDynamicYAxisEnabled = true
+    assertEqual(storage.isDynamicYAxisEnabled, true)
+    
     // Clear all
     storage.clearAll()
     assertTrue(storage.cachedGlucoseHistory.isEmpty)
     assertTrue(storage.targetLow == nil)
     assertTrue(storage.targetHigh == nil)
+    assertTrue(storage.isDynamicYAxisEnabled == true)
 }
 
 // MARK: - Client & Network Flow Tests
