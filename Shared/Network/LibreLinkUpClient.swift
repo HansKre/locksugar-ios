@@ -218,8 +218,28 @@ public final class LibreLinkUpClient {
         }
         
         let graphResponse = try JSONDecoder().decode(LLUGraphResponse.self, from: data)
-        guard let measurement = graphResponse.data?.connection?.glucoseMeasurement ?? graphResponse.data?.connection?.glucoseItem,
-              let reading = GlucoseReading(measurement: measurement) else {
+        
+        var chosenReading: GlucoseReading?
+        if let latestMeasurement = graphResponse.data?.connection?.glucoseMeasurement ?? graphResponse.data?.connection?.glucoseItem,
+           let reading = GlucoseReading(measurement: latestMeasurement) {
+            chosenReading = reading
+        }
+        
+        // If graphData contains a strictly newer measurement, or if glucoseMeasurement was nil/failed to parse:
+        if let graphData = graphResponse.data?.graphData {
+            let parsedGraph = graphData.compactMap { GlucoseReading(measurement: $0) }
+            if let newestGraphReading = parsedGraph.max(by: { $0.timestamp < $1.timestamp }) {
+                if let current = chosenReading {
+                    if newestGraphReading.timestamp > current.timestamp {
+                        chosenReading = newestGraphReading
+                    }
+                } else {
+                    chosenReading = newestGraphReading
+                }
+            }
+        }
+        
+        guard let reading = chosenReading else {
             throw LibreLinkUpError.noMeasurementData
         }
         

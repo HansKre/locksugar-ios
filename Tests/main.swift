@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(LockSugarCore)
 import LockSugarCore
+#endif
 
 func assertEqual<T: Equatable>(_ actual: T, _ expected: T, _ message: String = "", file: StaticString = #file, line: UInt = #line) {
     if actual != expected {
@@ -349,6 +351,54 @@ await runAsyncTest("LibreLinkUpClient.silentTokenRenewal") {
     assertEqual(keychain.jwtToken, "new-jwt-token")
     assertEqual(storage.patientId, "target-patient-uuid")
     assertEqual(storage.cachedGlucoseReading?.formattedValue, "115")
+}
+
+await runAsyncTest("LibreLinkUpClient.freshestReadingFromGraphData") {
+    MockURLProtocol.reset()
+    let defaults = UserDefaults(suiteName: "test.suite.\(UUID().uuidString)")!
+    let storage = SharedStorage(userDefaults: defaults)
+    let keychain = KeychainHelper(useInMemoryFallbackForTests: true)
+    let session = MockURLProtocol.makeMockSession()
+    let client = LibreLinkUpClient(session: session, keychain: keychain, storage: storage)
+    
+    // Stale measurement in connection.glucoseMeasurement (10:00 AM), fresher measurement in graphData (10:15 AM)
+    MockURLProtocol.requestHandler = { request in
+        let json = """
+        {
+            "status": 0,
+            "data": {
+                "connection": {
+                    "glucoseMeasurement": {
+                        "Timestamp": "4/1/2026 10:00:00 AM",
+                        "ValueInMgPerDl": 100,
+                        "GlucoseUnits": 0,
+                        "Value": 100
+                    }
+                },
+                "graphData": [
+                    {
+                        "Timestamp": "4/1/2026 9:45:00 AM",
+                        "ValueInMgPerDl": 95,
+                        "GlucoseUnits": 0,
+                        "Value": 95
+                    },
+                    {
+                        "Timestamp": "4/1/2026 10:15:00 AM",
+                        "ValueInMgPerDl": 142,
+                        "GlucoseUnits": 0,
+                        "Value": 142
+                    }
+                ]
+            }
+        }
+        """
+        let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+        return (response, Data(json.utf8))
+    }
+    
+    let reading = try await client.getGraph(patientId: "p1", jwtToken: "tok", accountIdHash: "hash")
+    assertEqual(reading.formattedValue, "142")
+    assertEqual(reading.valueInMgPerDl, 142)
 }
 
 runTest("TimelineScheduler.calculateNextReloadDate") {

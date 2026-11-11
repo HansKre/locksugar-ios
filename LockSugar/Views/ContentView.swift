@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct ContentView: View {
     @StateObject private var viewModel = AppViewModel()
+    @Environment(\.scenePhase) private var scenePhase
     
     public init() {}
     
@@ -15,8 +16,8 @@ public struct ContentView: View {
                         errorBanner(error)
                     }
                     
-                    if viewModel.isConnected, let reading = viewModel.lastReading {
-                        connectedView(reading)
+                    if viewModel.isConnected {
+                        connectedView(viewModel.lastReading)
                     } else {
                         loginFormView
                     }
@@ -30,6 +31,18 @@ public struct ContentView: View {
             }
         }
         .navigationViewStyle(.stack)
+        .task {
+            if viewModel.isConnected {
+                await viewModel.refreshReading()
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active && viewModel.isConnected {
+                Task {
+                    await viewModel.refreshReading()
+                }
+            }
+        }
     }
     
     // MARK: - Header
@@ -53,7 +66,7 @@ public struct ContentView: View {
     
     // MARK: - Connected Status
     
-    private func connectedView(_ reading: GlucoseReading) -> some View {
+    private func connectedView(_ reading: GlucoseReading?) -> some View {
         VStack(spacing: 20) {
             // Live Glucose Card
             VStack(spacing: 12) {
@@ -65,20 +78,47 @@ public struct ContentView: View {
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(.green)
                     Spacer()
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                    }
                 }
                 
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(reading.formattedValue)
-                        .font(.system(size: 64, weight: .bold, design: .rounded))
-                    Text(reading.glucoseUnits.label)
-                        .font(.title2.weight(.medium))
-                        .foregroundColor(.secondary)
-                }
-                .padding(.vertical, 4)
-                
-                Text("Last reading: \(reading.timestamp, style: .time)")
+                if let reading = reading {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(reading.formattedValue)
+                            .font(.system(size: 64, weight: .bold, design: .rounded))
+                        Text(reading.glucoseUnits.label)
+                            .font(.title2.weight(.medium))
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                    .opacity(reading.isStale() ? 0.6 : 1.0)
+                    
+                    HStack(spacing: 4) {
+                        if Calendar.current.isDateInToday(reading.timestamp) {
+                            Text("Last reading: \(reading.timestamp, style: .time)")
+                        } else {
+                            Text("Last reading: \(reading.timestamp, style: .date) \(reading.timestamp, style: .time)")
+                        }
+                        if reading.isStale() {
+                            Text("(stale)")
+                                .foregroundColor(.orange)
+                        }
+                    }
                     .font(.footnote)
                     .foregroundColor(.secondary)
+                } else {
+                    VStack(spacing: 8) {
+                        Text("---")
+                            .font(.system(size: 64, weight: .bold, design: .rounded))
+                            .foregroundColor(.secondary)
+                        Text(viewModel.isLoading ? "Fetching latest reading..." : "No reading available yet")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 8)
+                }
             }
             .padding(20)
             .frame(maxWidth: .infinity)
@@ -88,20 +128,8 @@ public struct ContentView: View {
             // Actions
             VStack(spacing: 12) {
                 Button {
-                    viewModel.showingInstructions = true
-                } label: {
-                    Label("Lock Screen Widget Setup", systemImage: "questionmark.circle.fill")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.accentColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                }
-                
-                Button {
                     Task {
-                        await viewModel.verifyConnection()
+                        await viewModel.refreshReading()
                     }
                 } label: {
                     if viewModel.isLoading {
@@ -118,6 +146,18 @@ public struct ContentView: View {
                 .foregroundColor(.primary)
                 .cornerRadius(12)
                 .disabled(viewModel.isLoading)
+                
+                Button {
+                    viewModel.showingInstructions = true
+                } label: {
+                    Label("Lock Screen Widget Setup", systemImage: "questionmark.circle.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                }
                 
                 Button(role: .destructive) {
                     viewModel.disconnect()

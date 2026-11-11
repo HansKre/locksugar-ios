@@ -31,22 +31,76 @@ public final class AppViewModel: ObservableObject {
         if let storedEmail = keychain.get(KeychainHelper.Key.email) {
             self.email = storedEmail
         }
+        if let storedPassword = keychain.get(KeychainHelper.Key.password) {
+            self.password = storedPassword
+        }
         self.lastReading = storage.cachedGlucoseReading
-        self.isConnected = (keychain.get(KeychainHelper.Key.jwtToken) != nil || keychain.get(KeychainHelper.Key.password) != nil) && storage.patientId != nil
+        let hasCredentials = (keychain.get(KeychainHelper.Key.email) != nil && keychain.get(KeychainHelper.Key.password) != nil)
+        let hasToken = (keychain.get(KeychainHelper.Key.jwtToken) != nil || keychain.get(KeychainHelper.Key.password) != nil) && storage.patientId != nil
+        self.isConnected = hasCredentials || hasToken
+    }
+    
+    public func updateFromStorageIfNewer() {
+        if let cached = storage.cachedGlucoseReading {
+            if let current = lastReading {
+                if cached.timestamp > current.timestamp {
+                    self.lastReading = cached
+                }
+            } else {
+                self.lastReading = cached
+            }
+        }
+    }
+    
+    public func refreshReading() async {
+        guard !isLoading else { return }
+        guard isConnected else { return }
+        
+        updateFromStorageIfNewer()
+        
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let reading = try await client.fetchCurrentReading()
+            self.lastReading = reading
+            self.isConnected = true
+            self.isLoading = false
+            
+            #if canImport(WidgetKit)
+            WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
+            #endif
+        } catch {
+            self.isLoading = false
+            self.errorMessage = error.localizedDescription
+            if case LibreLinkUpError.missingCredentials = error {
+                self.isConnected = false
+            }
+        }
     }
     
     public func verifyConnection() async {
-        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedEmail.isEmpty, !password.isEmpty else {
+        let inputEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedEmail = inputEmail.isEmpty ? (keychain.get(KeychainHelper.Key.email) ?? "").trimmingCharacters(in: .whitespacesAndNewlines) : inputEmail
+        let resolvedPassword = password.isEmpty ? (keychain.get(KeychainHelper.Key.password) ?? "") : password
+        
+        guard !resolvedEmail.isEmpty, !resolvedPassword.isEmpty else {
             self.errorMessage = "Please enter both email and password."
             return
+        }
+        
+        if self.email != resolvedEmail {
+            self.email = resolvedEmail
+        }
+        if self.password != resolvedPassword {
+            self.password = resolvedPassword
         }
         
         isLoading = true
         errorMessage = nil
         
         do {
-            let (jwt, accountIdHash) = try await client.login(email: trimmedEmail, password: password)
+            let (jwt, accountIdHash) = try await client.login(email: resolvedEmail, password: resolvedPassword)
             let patientId = try await client.getConnections(jwtToken: jwt, accountIdHash: accountIdHash)
             let reading = try await client.getGraph(patientId: patientId, jwtToken: jwt, accountIdHash: accountIdHash)
             
