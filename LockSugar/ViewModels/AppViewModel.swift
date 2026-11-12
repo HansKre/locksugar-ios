@@ -19,6 +19,7 @@ public final class AppViewModel: ObservableObject {
     @Published public var headphoneInfo: HeadphoneBatteryInfo? = nil
     @Published public var widgetTapAction: SharedStorage.WidgetTapActionOption = .libre3Direct
     @Published public var widgetTapCustomURL: String = ""
+    @Published public var insulinShortcutName: String = SharedStorage.defaultInsulinShortcutName
     
     public let client: LibreLinkUpClient
     public let keychain: KeychainManaging
@@ -46,6 +47,7 @@ public final class AppViewModel: ObservableObject {
         self.headphoneInfo = storage.headphoneBatteryInfo
         self.widgetTapAction = storage.widgetTapAction
         self.widgetTapCustomURL = storage.widgetTapCustomURL
+        self.insulinShortcutName = storage.insulinShortcutName
         let hasCredentials = (keychain.get(KeychainHelper.Key.email) != nil && keychain.get(KeychainHelper.Key.password) != nil)
         let hasToken = (keychain.get(KeychainHelper.Key.jwtToken) != nil || keychain.get(KeychainHelper.Key.password) != nil) && storage.patientId != nil
         self.isConnected = hasCredentials || hasToken
@@ -168,6 +170,14 @@ public final class AppViewModel: ObservableObject {
         #endif
     }
     
+    public func setInsulinShortcutName(_ name: String) {
+        self.insulinShortcutName = name
+        storage.insulinShortcutName = name
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
+        #endif
+    }
+    
     public func updateHeadphoneInfoFromStorage() {
         self.headphoneInfo = storage.headphoneBatteryInfo
     }
@@ -184,6 +194,7 @@ public final class AppViewModel: ObservableObject {
         self.errorMessage = nil
         self.widgetTapAction = .libre3Direct
         self.widgetTapCustomURL = ""
+        self.insulinShortcutName = SharedStorage.defaultInsulinShortcutName
         
         #if canImport(WidgetKit)
         WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")

@@ -57,9 +57,31 @@ public struct SettingsView: View {
                 // MARK: - Widget Tap Action
                 Section(
                     header: Text("Widget Tap Action"),
-                    footer: Text("Choose which app opens when you tap the Lock Screen widget. Select Direct Scheme to attempt opening FreeStyle Libre 3 directly (freestylelibre3://), or Apple Shortcut to run the \"Libre 3\" shortcut that launches the app.")
+                    footer: Text("On the 50% rectangular Lock Screen widget, the left 50% triggers your Insulin Timer shortcut and the right 50% triggers the Libre 3 action configured below. Circular and inline widgets open Libre 3 directly.")
                 ) {
-                    Picker("Tap Action", selection: Binding(
+                    VStack(alignment: .leading, spacing: 4) {
+                        Label("Lock Screen 50% Widget Split", systemImage: "rectangle.split.2x1")
+                            .font(.subheadline.bold())
+                            .foregroundColor(.accentColor)
+                        Text("• Left 50%: Triggers Apple Shortcut \"\(viewModel.insulinShortcutName)\".\n• Right 50%: Triggers the Libre 3 action below.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 2)
+                    
+                    HStack {
+                        Text("Insulin Shortcut:")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        TextField("Insulin Timer starten", text: Binding(
+                            get: { viewModel.insulinShortcutName },
+                            set: { viewModel.setInsulinShortcutName($0) }
+                        ))
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                    }
+                    
+                    Picker("Right Tap Action", selection: Binding(
                         get: { viewModel.widgetTapAction },
                         set: { viewModel.setWidgetTapAction($0) }
                     )) {

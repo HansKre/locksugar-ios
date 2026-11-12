@@ -13,6 +13,7 @@ public struct GlucoseEntry: TimelineEntry {
     public let headphoneInfo: HeadphoneBatteryInfo?
     public let showHeadphoneBattery: Bool
     public let widgetURL: URL?
+    public let insulinTimerURL: URL?
     
     public var delta: Double? {
         explicitDelta ?? GlucoseReading.calculateDelta(current: reading, history: history)
@@ -29,7 +30,8 @@ public struct GlucoseEntry: TimelineEntry {
         isDynamicYAxisEnabled: Bool = true,
         headphoneInfo: HeadphoneBatteryInfo? = nil,
         showHeadphoneBattery: Bool = true,
-        widgetURL: URL? = nil
+        widgetURL: URL? = nil,
+        insulinTimerURL: URL? = nil
     ) {
         self.date = date
         self.reading = reading
@@ -42,6 +44,7 @@ public struct GlucoseEntry: TimelineEntry {
         self.headphoneInfo = headphoneInfo
         self.showHeadphoneBattery = showHeadphoneBattery
         self.widgetURL = widgetURL
+        self.insulinTimerURL = insulinTimerURL
     }
 }
 
@@ -71,7 +74,8 @@ public struct GlucoseTimelineProvider: TimelineProvider {
             isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled,
             headphoneInfo: HeadphoneBatteryInfo(isConnected: true, batteryLevel: 85, deviceName: "AirPods Pro"),
             showHeadphoneBattery: storage.showHeadphoneBattery,
-            widgetURL: storage.widgetLaunchURL
+            widgetURL: storage.widgetLaunchURL,
+            insulinTimerURL: storage.insulinTimerLaunchURL
         )
     }
     
@@ -94,7 +98,8 @@ public struct GlucoseTimelineProvider: TimelineProvider {
             isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled,
             headphoneInfo: storage.headphoneBatteryInfo,
             showHeadphoneBattery: storage.showHeadphoneBattery,
-            widgetURL: storage.widgetLaunchURL
+            widgetURL: storage.widgetLaunchURL,
+            insulinTimerURL: storage.insulinTimerLaunchURL
         )
         completion(entry)
     }
@@ -124,7 +129,8 @@ public struct GlucoseTimelineProvider: TimelineProvider {
                 isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled,
                 headphoneInfo: storage.headphoneBatteryInfo,
                 showHeadphoneBattery: storage.showHeadphoneBattery,
-                widgetURL: storage.widgetLaunchURL
+                widgetURL: storage.widgetLaunchURL,
+                insulinTimerURL: storage.insulinTimerLaunchURL
             )
             let reloadDate = TimelineScheduler.calculateNextReloadDate(for: resolvedReading?.timestamp, from: Date())
             
@@ -146,8 +152,11 @@ struct LockSugarWidgetEntryView: View {
         switch family {
         case .systemMedium, .systemSmall:
             return nil
-        case .accessoryCircular, .accessoryInline, .accessoryRectangular:
+        case .accessoryCircular, .accessoryInline:
             return entry.widgetURL
+        case .accessoryRectangular:
+            // Handled via inner 50/50 Links in LockSugarRectangularView
+            return nil
         default:
             return entry.widgetURL
         }
@@ -170,7 +179,9 @@ struct LockSugarWidgetEntryView: View {
                     targetHigh: entry.targetHigh,
                     isDynamicYAxisEnabled: entry.isDynamicYAxisEnabled,
                     headphoneInfo: entry.headphoneInfo,
-                    showHeadphoneBattery: entry.showHeadphoneBattery
+                    showHeadphoneBattery: entry.showHeadphoneBattery,
+                    insulinTimerURL: entry.insulinTimerURL,
+                    libre3URL: entry.widgetURL
                 )
             case .systemSmall:
                 LockSugarSmallView(

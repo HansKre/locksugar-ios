@@ -751,6 +751,37 @@ runTest("SharedStorage.widgetTapActionAndURL") {
     assertEqual(storage.resolvedWidgetURL, URL(string: "freestylelibre3://"))
 }
 
+runTest("SharedStorage.insulinShortcutAndURL") {
+    let defaults = UserDefaults(suiteName: "test_suite_insulin_shortcut_\(UUID().uuidString)")!
+    let storage = SharedStorage(userDefaults: defaults)
+    
+    // 1. Default shortcut name
+    assertEqual(storage.insulinShortcutName, "Insulin Timer starten")
+    assertEqual(storage.resolvedInsulinTimerURL, URL(string: "shortcuts://run-shortcut?name=Insulin%20Timer%20starten"))
+    
+    let defaultLaunchURL = storage.insulinTimerLaunchURL
+    assertTrue(defaultLaunchURL.absoluteString.starts(with: "locksugar://widget-tap?target="))
+    
+    // Verify parsing with URLComponents (trampoline behavior)
+    let comp1 = URLComponents(url: defaultLaunchURL, resolvingAgainstBaseURL: true)
+    let target1 = comp1?.queryItems?.first(where: { $0.name == "target" })?.value
+    assertEqual(target1, "shortcuts://run-shortcut?name=Insulin%20Timer%20starten")
+    
+    // 2. Custom shortcut name
+    storage.insulinShortcutName = "Bolus Timer"
+    assertEqual(storage.insulinShortcutName, "Bolus Timer")
+    assertEqual(storage.resolvedInsulinTimerURL, URL(string: "shortcuts://run-shortcut?name=Bolus%20Timer"))
+    
+    let customLaunchURL = storage.insulinTimerLaunchURL
+    let comp2 = URLComponents(url: customLaunchURL, resolvingAgainstBaseURL: true)
+    let target2 = comp2?.queryItems?.first(where: { $0.name == "target" })?.value
+    assertEqual(target2, "shortcuts://run-shortcut?name=Bolus%20Timer")
+    
+    // 3. Clear all restores default
+    storage.clearAll()
+    assertEqual(storage.insulinShortcutName, "Insulin Timer starten")
+}
+
 runTest("GlucoseReading.deltaWithTrendArrowFormatting") {
     let now = Date()
     let reading1 = GlucoseReading(value: 112, valueInMgPerDl: 112, glucoseUnits: .mgPerDl, timestamp: now, trendArrow: 3)

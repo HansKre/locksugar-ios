@@ -12,6 +12,8 @@ public struct LockSugarRectangularView: View {
     public let isDynamicYAxisEnabled: Bool
     public let headphoneInfo: HeadphoneBatteryInfo?
     public let showHeadphoneBattery: Bool
+    public let insulinTimerURL: URL?
+    public let libre3URL: URL?
     
     public init(
         reading: GlucoseReading?,
@@ -22,7 +24,9 @@ public struct LockSugarRectangularView: View {
         targetHigh: Double = GlucoseZone.defaultTargetHigh,
         isDynamicYAxisEnabled: Bool = true,
         headphoneInfo: HeadphoneBatteryInfo? = nil,
-        showHeadphoneBattery: Bool = true
+        showHeadphoneBattery: Bool = true,
+        insulinTimerURL: URL? = nil,
+        libre3URL: URL? = nil
     ) {
         self.reading = reading?.resolvingTrendArrow(with: history)
         self.history = history
@@ -33,21 +37,53 @@ public struct LockSugarRectangularView: View {
         self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
         self.headphoneInfo = headphoneInfo
         self.showHeadphoneBattery = showHeadphoneBattery
+        self.insulinTimerURL = insulinTimerURL
+        self.libre3URL = libre3URL
     }
     
     public var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            headerView
-            LockSugarRectangularChartView(
-                reading: reading,
-                history: history,
-                forecast: forecast,
-                targetLow: targetLow,
-                targetHigh: targetHigh,
-                isDynamicYAxisEnabled: isDynamicYAxisEnabled
-            )
+        ZStack {
+            VStack(alignment: .leading, spacing: 2) {
+                headerView
+                LockSugarRectangularChartView(
+                    reading: reading,
+                    history: history,
+                    forecast: forecast,
+                    targetLow: targetLow,
+                    targetHigh: targetHigh,
+                    isDynamicYAxisEnabled: isDynamicYAxisEnabled
+                )
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            
+            // Interactive 50/50 split hit-testing:
+            // Left 50% triggers Insulin Timer shortcut, right 50% triggers Libre 3
+            HStack(spacing: 0) {
+                if let insulinURL = insulinTimerURL {
+                    Link(destination: insulinURL) {
+                        Color.white.opacity(0.001)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .contentShape(Rectangle())
+                    }
+                } else {
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                
+                if let libreURL = libre3URL {
+                    Link(destination: libreURL) {
+                        Color.white.opacity(0.001)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .contentShape(Rectangle())
+                    }
+                } else {
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            .buttonStyle(.plain)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
     
     // MARK: - Header

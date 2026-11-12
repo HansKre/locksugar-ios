@@ -22,6 +22,7 @@ public final class SharedStorage {
         public static let headphoneBatteryInfo = "locksugar_headphone_battery_info"
         public static let widgetTapAction = "locksugar_widget_tap_action"
         public static let widgetTapCustomURL = "locksugar_widget_tap_custom_url"
+        public static let insulinShortcutName = "locksugar_insulin_shortcut_name"
     }
     
     public let userDefaults: UserDefaults
@@ -242,6 +243,40 @@ public final class SharedStorage {
         return URL(string: "locksugar://widget-tap")!
     }
     
+    // MARK: - Insulin Timer Shortcut
+    
+    public static let defaultInsulinShortcutName = "Insulin Timer starten"
+    
+    public var insulinShortcutName: String {
+        get {
+            userDefaults.string(forKey: Key.insulinShortcutName) ?? Self.defaultInsulinShortcutName
+        }
+        set {
+            userDefaults.set(newValue, forKey: Key.insulinShortcutName)
+        }
+    }
+    
+    /// Target URL for running the insulin timer shortcut.
+    public var resolvedInsulinTimerURL: URL? {
+        let name = insulinShortcutName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let finalName = name.isEmpty ? Self.defaultInsulinShortcutName : name
+        guard let encodedName = finalName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+            return nil
+        }
+        return URL(string: "shortcuts://run-shortcut?name=\(encodedName)")
+    }
+    
+    /// URL assigned to the left half of the Lock Screen rectangular widget.
+    /// Uses the `locksugar://widget-tap?target=...` trampoline to ensure SpringBoard forwards to Shortcuts.
+    public var insulinTimerLaunchURL: URL {
+        if let target = resolvedInsulinTimerURL?.absoluteString,
+           let encoded = target.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+           let url = URL(string: "locksugar://widget-tap?target=\(encoded)") {
+            return url
+        }
+        return URL(string: "locksugar://widget-tap")!
+    }
+    
     public func clearAll() {
         userDefaults.removeObject(forKey: Key.accountIdHash)
         userDefaults.removeObject(forKey: Key.patientId)
@@ -256,5 +291,6 @@ public final class SharedStorage {
         userDefaults.removeObject(forKey: Key.headphoneBatteryInfo)
         userDefaults.removeObject(forKey: Key.widgetTapAction)
         userDefaults.removeObject(forKey: Key.widgetTapCustomURL)
+        userDefaults.removeObject(forKey: Key.insulinShortcutName)
     }
 }
