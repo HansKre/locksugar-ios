@@ -42,9 +42,14 @@ struct LockSugarApp: App {
     private func handleIncomingURL(_ url: URL) {
         #if canImport(UIKit)
         DispatchQueue.main.async {
+            // If the URL explicitly requests opening LockSugar, or is not a widget trampoline: stay in LockSugar
+            if url.scheme == "locksugar" && (url.host == "open" || url.host != "widget-tap") {
+                return
+            }
+            
             var targetURL: URL?
             
-            // 1. If target URL was explicitly encoded as a query item
+            // 1. If target URL was explicitly encoded as a query item (e.g. locksugar://widget-tap?target=...)
             if let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
                let targetString = components.queryItems?.first(where: { $0.name == "target" })?.value,
                let parsed = URL(string: targetString) {
@@ -52,9 +57,12 @@ struct LockSugarApp: App {
             } else if url.scheme != "locksugar" {
                 // 2. If url itself is an external scheme
                 targetURL = url
-            } else {
-                // 3. Otherwise, resolve configured Widget Tap Action from SharedStorage
+            } else if url.host == "widget-tap" {
+                // 3. Fallback only for locksugar://widget-tap with missing query item
                 targetURL = SharedStorage.shared.resolvedWidgetURL
+            } else {
+                // Any other URL remains in LockSugar
+                return
             }
             
             guard let destination = targetURL, destination.scheme != "locksugar" else {

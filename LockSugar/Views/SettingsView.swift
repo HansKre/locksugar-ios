@@ -148,6 +148,35 @@ public struct SettingsView: View {
                         }
                     }
                     .padding(.vertical, 4)
+                    
+                    if isConnected {
+                        Button(action: { batteryMonitor.scanNow() }) {
+                            HStack {
+                                Image(systemName: "arrow.triangle.2.circlepath")
+                                    .rotationEffect(.degrees(batteryMonitor.isScanning ? 360 : 0))
+                                    .animation(batteryMonitor.isScanning ? Animation.linear(duration: 1).repeatForever(autoreverses: false) : .default, value: batteryMonitor.isScanning)
+                                Text(batteryMonitor.isScanning ? "Scanning for battery..." : "Scan for Battery")
+                                    .font(.subheadline)
+                            }
+                        }
+                        .disabled(batteryMonitor.isScanning)
+                        
+                        HStack {
+                            Text("Battery Level:")
+                                .font(.subheadline)
+                            Spacer()
+                            Picker("Battery Level", selection: Binding(
+                                get: { info?.batteryLevel ?? 0 },
+                                set: { batteryMonitor.setBatteryLevel(level: $0 > 0 ? $0 : nil) }
+                            )) {
+                                Text(info?.batteryLevel == nil ? "Auto (No % shown)" : "Clear").tag(0)
+                                ForEach([100, 90, 80, 70, 60, 50, 40, 30, 20, 10], id: \.self) { val in
+                                    Text("\(val)%").tag(val)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                        }
+                    }
                 }
             }
             .navigationTitle("Settings")

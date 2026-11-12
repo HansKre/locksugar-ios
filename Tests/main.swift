@@ -592,6 +592,30 @@ runTest("HeadphoneBatteryInfo.formattingAndCodable") {
     assertEqual(decoded.formattedPercentage, "85%")
 }
 
+#if canImport(CoreBluetooth)
+import CoreBluetooth
+
+runTest("BluetoothBatteryMonitor.parseBatteryLevel") {
+    // 1. Standard 0x180F Battery Service
+    let standardData: [CBUUID: Data] = [
+        CBUUID(string: "180F"): Data([80])
+    ]
+    assertEqual(BluetoothBatteryMonitor.parseBatteryLevel(from: standardData), 80)
+    
+    // 2. Google Fast Pair 0xFE2C
+    let fastPairData: [CBUUID: Data] = [
+        CBUUID(string: "FE2C"): Data([0x00, 0x33, 0x50]) // 0x50 = 80 decimal
+    ]
+    assertEqual(BluetoothBatteryMonitor.parseBatteryLevel(from: fastPairData), 80)
+    
+    // 3. Out of range data
+    let invalidData: [CBUUID: Data] = [
+        CBUUID(string: "180F"): Data([150])
+    ]
+    assertEqual(BluetoothBatteryMonitor.parseBatteryLevel(from: invalidData), nil)
+}
+#endif
+
 runTest("SharedStorage.headphoneBatteryAndToggle") {
     let defaults = UserDefaults(suiteName: "test_suite_headphone_\(UUID().uuidString)")!
     let storage = SharedStorage(userDefaults: defaults)

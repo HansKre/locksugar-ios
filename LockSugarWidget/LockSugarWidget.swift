@@ -140,6 +140,17 @@ struct LockSugarWidgetEntryView: View {
     var entry: GlucoseTimelineProvider.Entry
     @Environment(\.widgetFamily) var family
     
+    private var targetWidgetURL: URL? {
+        switch family {
+        case .systemMedium, .systemSmall:
+            return nil
+        case .accessoryCircular, .accessoryInline, .accessoryRectangular:
+            return entry.widgetURL
+        default:
+            return entry.widgetURL
+        }
+    }
+    
     var body: some View {
         Group {
             switch family {
@@ -184,7 +195,7 @@ struct LockSugarWidgetEntryView: View {
             }
         }
         .applyContainerBackgroundIfAvailable(family: family, reading: entry.reading)
-        .widgetURL(entry.widgetURL)
+        .widgetURL(targetWidgetURL)
     }
 }
 

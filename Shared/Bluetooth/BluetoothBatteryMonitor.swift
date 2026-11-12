@@ -22,7 +22,8 @@ public final class BluetoothBatteryMonitor: NSObject, ObservableObject {
     private var connectedPeripheral: CBPeripheral?
     private let knownServiceUUIDs: [CBUUID] = [
         CBUUID(string: "180F"), // Battery Service
-        CBUUID(string: "1800"), // Generic Access Profile
+        CBUUID(string: "1801"), // Generic Attribute Profile (GATT)
+        CBUUID(string: "1800"), // Generic Access Profile (GAP)
         CBUUID(string: "180A"), // Device Information Service
         CBUUID(string: "FE2C")  // Google Fast Pair Service (Shokz / Android fast pair)
     ]
@@ -152,11 +153,17 @@ public final class BluetoothBatteryMonitor: NSObject, ObservableObject {
             options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
         )
         
-        // Timeout scan after 3 seconds to avoid lingering scan state and conserve battery
+        // Timeout scan after 12 seconds to capture slow-interval BLE advertisements
         scanTimeoutTimer?.invalidate()
-        scanTimeoutTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
+        scanTimeoutTimer = Timer.scheduledTimer(withTimeInterval: 12.0, repeats: false) { [weak self] _ in
             self?.stopScanning()
         }
+    }
+    
+    public func scanNow() {
+        #if canImport(CoreBluetooth)
+        triggerPeripheralsSearch()
+        #endif
     }
     
     private func stopScanning() {
@@ -199,6 +206,35 @@ public final class BluetoothBatteryMonitor: NSObject, ObservableObject {
         updateBatteryInfo(isConnected: true, level: level, deviceName: current.deviceName)
     }
     
+    /// Extracts battery level from BLE advertisement service data if present.
+    /// Supports:
+    /// - 0x180F (Standard Battery Service): single byte 0-100
+    /// - 0xFE2C (Google Fast Pair Service): component format 0b0VVVVVVV
+    public static func parseBatteryLevel(from serviceData: [CBUUID: Data]) -> Int? {
+        #if canImport(CoreBluetooth)
+        // 1. Check standard 0x180F Battery Service Data
+        let batteryUUID = CBUUID(string: "180F")
+        if let data = serviceData[batteryUUID], let first = data.first {
+            let level = Int(first)
+            if (0...100).contains(level) {
+                return level
+            }
+        }
+        
+        // 2. Check Google Fast Pair 0xFE2C Service Data
+        let fastPairUUID = CBUUID(string: "FE2C")
+        if let data = serviceData[fastPairUUID], data.count >= 2 {
+            for byte in data.reversed() {
+                let level = Int(byte & 0x7F)
+                if (0...100).contains(level) && byte != 0x7F {
+                    return level
+                }
+            }
+        }
+        #endif
+        return nil
+    }
+    
     /// Helper for testing in Simulator and previews
     public func setManualBatteryLevel(level: Int?, isConnected: Bool, deviceName: String? = "OpenRun by Shokz") {
         updateBatteryInfo(isConnected: isConnected, level: level, deviceName: isConnected ? deviceName : nil)
@@ -225,6 +261,15 @@ extension BluetoothBatteryMonitor: CBCentralManagerDelegate, CBPeripheralDelegat
         let matchesShokz = peripheralName.contains("shokz") || peripheralName.contains("openrun") || localName.contains("shokz") || localName.contains("openrun")
         
         if matchesTarget || matchesShokz {
+            // Check advertisement service data first (fast path without connection)
+            if let serviceData = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data],
+               let batteryLevel = Self.parseBatteryLevel(from: serviceData) {
+                let name = !localName.isEmpty ? (advertisementData[CBAdvertisementDataLocalNameKey] as? String ?? peripheralName) : (peripheral.name ?? currentInfo?.deviceName ?? "Bluetooth Headphone")
+                updateBatteryInfo(isConnected: true, level: batteryLevel, deviceName: name)
+                stopScanning()
+                return
+            }
+            
             connectToPeripheral(peripheral)
         }
     }
@@ -245,8 +290,9 @@ extension BluetoothBatteryMonitor: CBCentralManagerDelegate, CBPeripheralDelegat
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard let characteristics = service.characteristics else { return }
         for characteristic in characteristics {
-            // Check for standard Battery Level (0x2A19)
-            if characteristic.uuid == batteryLevelCharacteristicUUID {
+            let uuidStr = characteristic.uuid.uuidString.lowercased()
+            // Check for standard Battery Level (0x2A19) or any battery characteristic
+            if characteristic.uuid == batteryLevelCharacteristicUUID || uuidStr.contains("2a19") || uuidStr.contains("battery") {
                 peripheral.readValue(for: characteristic)
                 if characteristic.properties.contains(.notify) {
                     peripheral.setNotifyValue(true, for: characteristic)
@@ -256,11 +302,12 @@ extension BluetoothBatteryMonitor: CBCentralManagerDelegate, CBPeripheralDelegat
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        guard characteristic.uuid == batteryLevelCharacteristicUUID,
+        let uuidStr = characteristic.uuid.uuidString.lowercased()
+        guard characteristic.uuid == batteryLevelCharacteristicUUID || uuidStr.contains("2a19") || uuidStr.contains("battery"),
               let data = characteristic.value, !data.isEmpty else { return }
         
         let hexBytes = data.map { String(format: "%02X", $0) }.joined(separator: " ")
-        print("[BluetoothBatteryMonitor] didUpdateValue for 2A19: \(hexBytes) (\(data.count) bytes)")
+        print("[BluetoothBatteryMonitor] didUpdateValue for \(characteristic.uuid.uuidString): \(hexBytes) (\(data.count) bytes)")
         
         let rawLevel = Int(data[0])
         guard (0...100).contains(rawLevel) else { return }
