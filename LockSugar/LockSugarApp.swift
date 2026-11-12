@@ -24,11 +24,10 @@ struct LockSugarApp: App {
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .active:
-                // Fast-path reload and audio route check when host app becomes active
+                // Fast-path reload when host app becomes active
                 #if canImport(WidgetKit)
                 WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
                 #endif
-                BluetoothBatteryMonitor.shared.checkCurrentAudioRoute()
             case .background:
                 Self.scheduleAppRefresh()
             default:
@@ -76,7 +75,7 @@ struct LockSugarApp: App {
     }
     
     #if canImport(UIKit)
-    private static func openTargetURL(_ destination: URL) {
+    static func openTargetURL(_ destination: URL) {
         UIApplication.shared.open(destination, options: [:]) { success in
             if !success && destination.scheme == "freestylelibre3" {
                 // If direct scheme fails, fallback to Apple Shortcut or App Store

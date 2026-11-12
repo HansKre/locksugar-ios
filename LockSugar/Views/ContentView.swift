@@ -103,19 +103,27 @@ public struct ContentView: View {
                 }
                 
                 if let reading = reading {
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(reading.formattedValue)
-                            .font(.system(size: 64, weight: .bold, design: .rounded))
-                            .foregroundColor(reading.zoneColor)
-                        Text(reading.trendArrowSymbol)
-                            .font(.system(size: 40, weight: .bold, design: .rounded))
-                            .foregroundColor(reading.zoneColor)
-                        Text(reading.glucoseUnits.label)
-                            .font(.title2.weight(.medium))
-                            .foregroundColor(.secondary)
+                    Button {
+                        viewModel.openLibre3Action()
+                    } label: {
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text(reading.formattedValue)
+                                .font(.system(size: 64, weight: .bold, design: .rounded))
+                                .foregroundColor(reading.zoneColor)
+                            Text(reading.trendArrowSymbol)
+                                .font(.system(size: 40, weight: .bold, design: .rounded))
+                                .foregroundColor(reading.zoneColor)
+                            Text(reading.glucoseUnits.label)
+                                .font(.title2.weight(.medium))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                        .opacity(reading.isStale() ? 0.6 : 1.0)
+                        .contentShape(Rectangle())
                     }
-                    .padding(.vertical, 4)
-                    .opacity(reading.isStale() ? 0.6 : 1.0)
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Glucose reading: \(reading.formattedValue) \(reading.glucoseUnits.label)")
+                    .accessibilityHint("Opens Libre 3")
                     
                     HStack(spacing: 4) {
                         if Calendar.current.isDateInToday(reading.timestamp) {
@@ -131,15 +139,22 @@ public struct ContentView: View {
                     .font(.footnote)
                     .foregroundColor(.secondary)
                 } else {
-                    VStack(spacing: 8) {
-                        Text("---")
-                            .font(.system(size: 64, weight: .bold, design: .rounded))
-                            .foregroundColor(.secondary)
-                        Text(viewModel.isLoading ? "Fetching latest reading..." : "No reading available yet")
-                            .font(.footnote)
-                            .foregroundColor(.secondary)
+                    Button {
+                        viewModel.openLibre3Action()
+                    } label: {
+                        VStack(spacing: 8) {
+                            Text("---")
+                                .font(.system(size: 64, weight: .bold, design: .rounded))
+                                .foregroundColor(.secondary)
+                            Text(viewModel.isLoading ? "Fetching latest reading..." : "No reading available yet")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 8)
+                        .contentShape(Rectangle())
                     }
-                    .padding(.vertical, 8)
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Opens Libre 3")
                 }
             }
             .padding(20)

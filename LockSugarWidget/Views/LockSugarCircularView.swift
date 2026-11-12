@@ -2,34 +2,45 @@ import SwiftUI
 import WidgetKit
 
 public struct LockSugarCircularView: View {
+    @Environment(\.widgetFamily) var family
     public let reading: GlucoseReading?
     public let delta: Double?
+    public let useZoneColors: Bool?
     
-    public init(reading: GlucoseReading?, delta: Double? = nil) {
+    public init(reading: GlucoseReading?, delta: Double? = nil, useZoneColors: Bool? = nil) {
         self.reading = reading
         self.delta = delta
+        self.useZoneColors = useZoneColors
+    }
+    
+    private var resolvedUseZoneColors: Bool {
+        if let explicit = useZoneColors {
+            return explicit
+        }
+        return family != .accessoryCircular
     }
     
     public var body: some View {
+        let textColor = resolvedUseZoneColors ? (reading?.zoneColor ?? .primary) : .primary
         ZStack {
             if let reading = reading {
                 VStack(spacing: 1) {
                     HStack(alignment: .firstTextBaseline, spacing: 2) {
                         Text(reading.formattedValue)
                             .font(.system(size: 22, weight: .bold, design: .rounded))
-                            .foregroundColor(reading.zoneColor)
-                            .widgetAccentable()
+                            .foregroundColor(textColor)
+                            .widgetAccentable(resolvedUseZoneColors)
                         
                         Text(reading.trendArrowSymbol)
                             .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .foregroundColor(reading.zoneColor)
-                            .widgetAccentable()
+                            .foregroundColor(textColor)
+                            .widgetAccentable(resolvedUseZoneColors)
                         
                         if let delta = delta {
                             Text(GlucoseReading.formatDelta(delta))
                                 .font(.system(size: 13, weight: .semibold, design: .rounded))
-                                .foregroundColor(reading.zoneColor)
-                                .widgetAccentable()
+                                .foregroundColor(textColor)
+                                .widgetAccentable(resolvedUseZoneColors)
                         }
                     }
                     .lineLimit(1)
@@ -82,51 +93,46 @@ public struct LockSugarSmallView: View {
     }
     
     public var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             // Left main section: Numbers, trend arrow, timestamp, delta
             VStack(alignment: .leading, spacing: 0) {
                 Spacer(minLength: 0)
                 
                 // Primary Reading + Trend Arrow
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    if let reading = reading {
-                        Text(reading.formattedValue)
-                            .font(.system(size: 46, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .minimumScaleFactor(0.7)
-                            .lineLimit(1)
-                        
-                        Text(reading.trendArrowSymbol)
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(.white.opacity(0.95))
-                            .lineLimit(1)
-                    } else {
-                        Text("---")
-                            .font(.system(size: 44, weight: .bold, design: .rounded))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
+                if let reading = reading {
+                    Text("\(Text(reading.formattedValue).font(.system(size: 42, weight: .bold, design: .rounded)).foregroundColor(.white)) \(Text(reading.trendArrowSymbol).font(.system(size: 26, weight: .bold, design: .rounded)).foregroundColor(.white.opacity(0.95)))")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                } else {
+                    Text("---")
+                        .font(.system(size: 42, weight: .bold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+                        .lineLimit(1)
                 }
                 
                 Spacer(minLength: 6)
                 
                 // Footer: Timestamp & Delta
-                HStack(spacing: 16) {
+                HStack(spacing: 12) {
                     if let reading = reading {
                         Text(reading.formattedTime)
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
                             .foregroundColor(.white.opacity(0.85))
                             .lineLimit(1)
                     } else {
                         Text("--:--")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
                             .foregroundColor(.white.opacity(0.5))
+                            .lineLimit(1)
                     }
                     
                     Text(GlucoseReading.formatDelta(delta))
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
                         .foregroundColor(.white.opacity(0.85))
                         .lineLimit(1)
                 }
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
                 
                 Spacer(minLength: 0)
             }
@@ -135,10 +141,10 @@ public struct LockSugarSmallView: View {
             
             // Right section: Vertical Target Range Gauge
             verticalRangeGauge
-                .frame(width: 14)
+                .frame(width: 12)
                 .opacity(reading?.isStale() == true ? 0.5 : 1.0)
         }
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 4)
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -157,7 +163,7 @@ public struct LockSugarSmallView: View {
             let proportion = (clamped - minMg) / (maxMg - minMg)
             
             // Invert because Y coordinates increase downwards: top is 0, bottom is height
-            let thumbRadius: CGFloat = 6.0
+            let thumbRadius: CGFloat = 5.0
             let availableTrackHeight = max(0, height - (thumbRadius * 2))
             let yPosition = height - thumbRadius - (CGFloat(proportion) * availableTrackHeight)
             

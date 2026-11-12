@@ -24,8 +24,6 @@
 	<true/>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>LockSugar monitors connected Bluetooth headphones to display their battery percentage on the Lock Screen widget.</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.hanskrebs.locksugar.refresh</string>

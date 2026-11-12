@@ -2,7 +2,6 @@ import SwiftUI
 
 public struct SettingsView: View {
     @ObservedObject var viewModel: AppViewModel
-    @ObservedObject private var batteryMonitor = BluetoothBatteryMonitor.shared
     @Environment(\.dismiss) private var dismiss
     
     public init(viewModel: AppViewModel) {
@@ -13,28 +12,7 @@ public struct SettingsView: View {
         NavigationView {
             Form {
                 // MARK: - Lock Screen Widget Options
-                Section(
-                    header: Text("Lock Screen Widget"),
-                    footer: Text("When enabled, the battery percentage of your connected Bluetooth headphones appears in the Lock Screen widget.")
-                ) {
-                    Toggle(isOn: Binding(
-                        get: { viewModel.showHeadphoneBattery },
-                        set: { viewModel.setShowHeadphoneBattery($0) }
-                    )) {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Show Headphone Battery")
-                                    .font(.body)
-                                Text("Only displayed while headphones are connected")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "headphones")
-                                .foregroundColor(.accentColor)
-                        }
-                    }
-                    
+                Section(header: Text("Lock Screen Widget")) {
                     Toggle(isOn: Binding(
                         get: { viewModel.isDynamicYAxisEnabled },
                         set: { viewModel.setDynamicYAxisEnabled($0) }
@@ -126,129 +104,6 @@ public struct SettingsView: View {
                                 .foregroundColor(.secondary)
                         }
                         .padding(.vertical, 4)
-                    }
-                }
-                
-                // MARK: - Bluetooth Headphone Status
-                Section(
-                    header: Text("Connected Bluetooth Headphones"),
-                    footer: Text("Apple's iOS sandbox only exposes battery percentage for Bluetooth Low Energy (BLE) devices supporting GATT Battery Service. Classic Bluetooth audio devices (such as Shokz OpenRun) send battery via internal Hands-Free Profile commands reserved for iOS system widgets.")
-                ) {
-                    let info = batteryMonitor.currentInfo ?? viewModel.headphoneInfo
-                    let isConnected = info?.isConnected == true
-                    
-                    HStack(spacing: 12) {
-                        Circle()
-                            .fill(isConnected ? Color.green : Color.secondary.opacity(0.4))
-                            .frame(width: 10, height: 10)
-                        
-                        Image(systemName: "headphones")
-                            .foregroundColor(isConnected ? .primary : .secondary)
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(isConnected ? (info?.deviceName ?? "Bluetooth Headphone") : "No headphones connected")
-                                .font(.body.weight(isConnected ? .semibold : .regular))
-                                .foregroundColor(isConnected ? .primary : .secondary)
-                            
-                            if isConnected, let pct = info?.formattedPercentage {
-                                Text("Battery: \(pct)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            } else if isConnected {
-                                Text("Connected (audio active)")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        if isConnected, let pct = info?.formattedPercentage {
-                            Text(pct)
-                                .font(.headline.bold())
-                                .foregroundColor(.accentColor)
-                        }
-                    }
-                    .padding(.vertical, 4)
-                    
-                    if isConnected {
-                        Button(action: { batteryMonitor.scanNow() }) {
-                            HStack {
-                                Image(systemName: "arrow.triangle.2.circlepath")
-                                    .rotationEffect(.degrees(batteryMonitor.isScanning ? 360 : 0))
-                                    .animation(batteryMonitor.isScanning ? Animation.linear(duration: 1).repeatForever(autoreverses: false) : .default, value: batteryMonitor.isScanning)
-                                Text(batteryMonitor.isScanning ? "Scanning for battery..." : "Scan for Battery")
-                                    .font(.subheadline)
-                            }
-                        }
-                        .disabled(batteryMonitor.isScanning)
-                        
-                        HStack {
-                            Text("Battery Level:")
-                                .font(.subheadline)
-                            Spacer()
-                            Picker("Battery Level", selection: Binding(
-                                get: { info?.batteryLevel ?? 0 },
-                                set: { batteryMonitor.setBatteryLevel(level: $0 > 0 ? $0 : nil) }
-                            )) {
-                                Text(info?.batteryLevel == nil ? "Auto (No % shown)" : "Clear").tag(0)
-                                ForEach([100, 90, 80, 70, 60, 50, 40, 30, 20, 10], id: \.self) { val in
-                                    Text("\(val)%").tag(val)
-                                }
-                            }
-                            .pickerStyle(.menu)
-                        }
-                    }
-                }
-                
-                // MARK: - Bluetooth Diagnostics
-                Section(
-                    header: Text("Bluetooth Diagnostics"),
-                    footer: Text("Live debug output from CoreBluetooth and audio hardware probes. Tap 'Copy Logs' to copy the logs and share them.")
-                ) {
-                    HStack {
-                        Button(action: {
-                            batteryMonitor.scanNow()
-                        }) {
-                            Label(batteryMonitor.isScanning ? "Scanning..." : "Scan", systemImage: "arrow.clockwise")
-                        }
-                        .disabled(batteryMonitor.isScanning)
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            #if canImport(UIKit)
-                            UIPasteboard.general.string = batteryMonitor.logsAsText
-                            #endif
-                        }) {
-                            Label("Copy Logs", systemImage: "doc.on.doc")
-                        }
-                        .disabled(batteryMonitor.diagnosticLogs.isEmpty)
-                        
-                        Spacer()
-                        
-                        Button(role: .destructive, action: {
-                            batteryMonitor.clearLogs()
-                        }) {
-                            Label("Clear", systemImage: "trash")
-                        }
-                    }
-                    .buttonStyle(.borderless)
-                    
-                    if batteryMonitor.diagnosticLogs.isEmpty {
-                        Text("No logs yet. Tap 'Scan' to start discovery.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    } else {
-                        ScrollView {
-                            Text(batteryMonitor.logsAsText)
-                                .font(.system(size: 10, weight: .regular, design: .monospaced))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(4)
-                        }
-                        .frame(maxHeight: 220)
-                        .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(6)
                     }
                 }
             }

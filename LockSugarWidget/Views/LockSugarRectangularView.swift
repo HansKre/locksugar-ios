@@ -3,6 +3,7 @@ import WidgetKit
 import Charts
 
 public struct LockSugarRectangularView: View {
+    @Environment(\.widgetFamily) var family
     public let reading: GlucoseReading?
     public let history: [GlucoseReading]
     public let delta: Double?
@@ -10,10 +11,16 @@ public struct LockSugarRectangularView: View {
     public let targetLow: Double
     public let targetHigh: Double
     public let isDynamicYAxisEnabled: Bool
-    public let headphoneInfo: HeadphoneBatteryInfo?
-    public let showHeadphoneBattery: Bool
     public let insulinTimerURL: URL?
     public let libre3URL: URL?
+    public let useZoneColors: Bool?
+    
+    private var resolvedUseZoneColors: Bool {
+        if let explicit = useZoneColors {
+            return explicit
+        }
+        return family != .accessoryRectangular
+    }
     
     public init(
         reading: GlucoseReading?,
@@ -23,10 +30,9 @@ public struct LockSugarRectangularView: View {
         targetLow: Double = GlucoseZone.defaultTargetLow,
         targetHigh: Double = GlucoseZone.defaultTargetHigh,
         isDynamicYAxisEnabled: Bool = true,
-        headphoneInfo: HeadphoneBatteryInfo? = nil,
-        showHeadphoneBattery: Bool = true,
         insulinTimerURL: URL? = nil,
-        libre3URL: URL? = nil
+        libre3URL: URL? = nil,
+        useZoneColors: Bool? = nil
     ) {
         self.reading = reading?.resolvingTrendArrow(with: history)
         self.history = history
@@ -35,10 +41,9 @@ public struct LockSugarRectangularView: View {
         self.targetLow = targetLow
         self.targetHigh = targetHigh
         self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
-        self.headphoneInfo = headphoneInfo
-        self.showHeadphoneBattery = showHeadphoneBattery
         self.insulinTimerURL = insulinTimerURL
         self.libre3URL = libre3URL
+        self.useZoneColors = useZoneColors
     }
     
     public var body: some View {
@@ -51,7 +56,8 @@ public struct LockSugarRectangularView: View {
                     forecast: forecast,
                     targetLow: targetLow,
                     targetHigh: targetHigh,
-                    isDynamicYAxisEnabled: isDynamicYAxisEnabled
+                    isDynamicYAxisEnabled: isDynamicYAxisEnabled,
+                    useZoneColors: resolvedUseZoneColors
                 )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -91,26 +97,27 @@ public struct LockSugarRectangularView: View {
     @ViewBuilder
     private var headerView: some View {
         if let reading = reading {
+            let textColor = resolvedUseZoneColors ? reading.zoneColor : .primary
             HStack(alignment: .firstTextBaseline) {
                 // Left: Value, Trend Arrow, Delta, Time (clustered together)
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
                         Text(reading.formattedValue)
                             .font(.system(size: 19, weight: .bold, design: .rounded))
-                            .foregroundColor(reading.zoneColor)
-                            .widgetAccentable()
+                            .foregroundColor(textColor)
+                            .widgetAccentable(resolvedUseZoneColors)
                         
                         Text(reading.trendArrowSymbol)
                             .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .foregroundColor(reading.zoneColor)
-                            .widgetAccentable()
+                            .foregroundColor(textColor)
+                            .widgetAccentable(resolvedUseZoneColors)
                     }
                     
                     if let delta = delta {
                         Text(GlucoseReading.formatDelta(delta))
                             .font(.system(size: 12, weight: .semibold, design: .rounded))
-                            .foregroundColor(reading.zoneColor)
-                            .widgetAccentable()
+                            .foregroundColor(textColor)
+                            .widgetAccentable(resolvedUseZoneColors)
                     }
                     
                     Text(reading.formattedTime)
@@ -119,18 +126,6 @@ public struct LockSugarRectangularView: View {
                 }
                 
                 Spacer()
-                
-                // Right: Headphone Battery % (only if enabled, connected, and battery percentage is available)
-                if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected, let pct = headphone.formattedPercentage {
-                    HStack(spacing: 2) {
-                        Image(systemName: "headphones")
-                            .font(.system(size: 9, weight: .semibold))
-                        Text(pct)
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
-                    }
-                    .foregroundColor(.secondary)
-                    .widgetAccentable()
-                }
             }
             .opacity(reading.isStale() ? 0.5 : 1.0)
         } else {
@@ -139,16 +134,6 @@ public struct LockSugarRectangularView: View {
                     .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundColor(.secondary)
                 Spacer()
-                if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected, let pct = headphone.formattedPercentage {
-                    HStack(spacing: 2) {
-                        Image(systemName: "headphones")
-                            .font(.system(size: 9, weight: .semibold))
-                        Text(pct)
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
-                    }
-                    .foregroundColor(.secondary)
-                    .widgetAccentable()
-                }
             }
             .opacity(0.5)
         }
@@ -164,6 +149,7 @@ public struct LockSugarRectangularChartView: View {
     public let targetLow: Double
     public let targetHigh: Double
     public let isDynamicYAxisEnabled: Bool
+    public let useZoneColors: Bool
     
     public init(
         reading: GlucoseReading?,
@@ -171,7 +157,8 @@ public struct LockSugarRectangularChartView: View {
         forecast: [GlucoseForecastPoint] = [],
         targetLow: Double = GlucoseZone.defaultTargetLow,
         targetHigh: Double = GlucoseZone.defaultTargetHigh,
-        isDynamicYAxisEnabled: Bool = true
+        isDynamicYAxisEnabled: Bool = true,
+        useZoneColors: Bool = false
     ) {
         self.reading = reading
         self.history = history
@@ -179,11 +166,12 @@ public struct LockSugarRectangularChartView: View {
         self.targetLow = targetLow
         self.targetHigh = targetHigh
         self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
+        self.useZoneColors = useZoneColors
     }
     
     public var body: some View {
         let chartData = prepareChartData()
-        let lineColor = reading?.zoneColor ?? .glucoseNormal
+        let lineColor = useZoneColors ? (reading?.zoneColor ?? .glucoseNormal) : Color.primary
         
         Chart {
             // Target Range lower boundary
@@ -243,7 +231,7 @@ public struct LockSugarRectangularChartView: View {
             }
         }
         .chartYScale(domain: chartData.yAxisMin...chartData.yAxisMax)
-        .widgetAccentable()
+        .widgetAccentable(useZoneColors)
     }
     
     // MARK: - Data Preparation
@@ -353,8 +341,6 @@ public struct LockSugarMediumView: View {
     public let targetLow: Double
     public let targetHigh: Double
     public let isDynamicYAxisEnabled: Bool
-    public let headphoneInfo: HeadphoneBatteryInfo?
-    public let showHeadphoneBattery: Bool
     
     public init(
         reading: GlucoseReading?,
@@ -363,9 +349,7 @@ public struct LockSugarMediumView: View {
         forecast: [GlucoseForecastPoint] = [],
         targetLow: Double = GlucoseZone.defaultTargetLow,
         targetHigh: Double = GlucoseZone.defaultTargetHigh,
-        isDynamicYAxisEnabled: Bool = true,
-        headphoneInfo: HeadphoneBatteryInfo? = nil,
-        showHeadphoneBattery: Bool = true
+        isDynamicYAxisEnabled: Bool = true
     ) {
         self.reading = reading?.resolvingTrendArrow(with: history)
         self.history = history
@@ -374,8 +358,6 @@ public struct LockSugarMediumView: View {
         self.targetLow = targetLow
         self.targetHigh = targetHigh
         self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
-        self.headphoneInfo = headphoneInfo
-        self.showHeadphoneBattery = showHeadphoneBattery
     }
     
     public var body: some View {
@@ -387,8 +369,7 @@ public struct LockSugarMediumView: View {
             targetLow: targetLow,
             targetHigh: targetHigh,
             isDynamicYAxisEnabled: isDynamicYAxisEnabled,
-            headphoneInfo: headphoneInfo,
-            showHeadphoneBattery: showHeadphoneBattery
+            useZoneColors: true
         )
         .padding(4)
     }

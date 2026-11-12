@@ -15,8 +15,6 @@ public final class AppViewModel: ObservableObject {
     @Published public var showingInstructions: Bool = false
     @Published public var showingSettings: Bool = false
     @Published public var isDynamicYAxisEnabled: Bool = true
-    @Published public var showHeadphoneBattery: Bool = true
-    @Published public var headphoneInfo: HeadphoneBatteryInfo? = nil
     @Published public var widgetTapAction: SharedStorage.WidgetTapActionOption = .libre3Direct
     @Published public var widgetTapCustomURL: String = ""
     @Published public var insulinShortcutName: String = SharedStorage.defaultInsulinShortcutName
@@ -43,8 +41,6 @@ public final class AppViewModel: ObservableObject {
         }
         self.lastReading = storage.cachedGlucoseReading
         self.isDynamicYAxisEnabled = storage.isDynamicYAxisEnabled
-        self.showHeadphoneBattery = storage.showHeadphoneBattery
-        self.headphoneInfo = storage.headphoneBatteryInfo
         self.widgetTapAction = storage.widgetTapAction
         self.widgetTapCustomURL = storage.widgetTapCustomURL
         self.insulinShortcutName = storage.insulinShortcutName
@@ -142,14 +138,6 @@ public final class AppViewModel: ObservableObject {
         #endif
     }
     
-    public func setShowHeadphoneBattery(_ enabled: Bool) {
-        self.showHeadphoneBattery = enabled
-        storage.showHeadphoneBattery = enabled
-        #if canImport(WidgetKit)
-        WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
-        #endif
-    }
-    
     public func setWidgetTapAction(_ action: SharedStorage.WidgetTapActionOption, customURL: String? = nil) {
         self.widgetTapAction = action
         storage.widgetTapAction = action
@@ -178,10 +166,6 @@ public final class AppViewModel: ObservableObject {
         #endif
     }
     
-    public func updateHeadphoneInfoFromStorage() {
-        self.headphoneInfo = storage.headphoneBatteryInfo
-    }
-    
     public func disconnect() {
         LiveActivityManager.shared.endLiveActivity()
         keychain.clearAll()
@@ -198,6 +182,21 @@ public final class AppViewModel: ObservableObject {
         
         #if canImport(WidgetKit)
         WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
+        #endif
+    }
+    
+    /// Triggers opening the FreeStyle Libre 3 app using the configured tap-action approach.
+    public func openLibre3Action() {
+        #if canImport(UIKit)
+        let destination: URL
+        if widgetTapAction == .lockSugar {
+            destination = URL(string: SharedStorage.WidgetTapActionOption.libre3Direct.rawValue)!
+        } else if let resolved = storage.resolvedWidgetURL {
+            destination = resolved
+        } else {
+            destination = URL(string: SharedStorage.WidgetTapActionOption.libre3Direct.rawValue)!
+        }
+        LockSugarApp.openTargetURL(destination)
         #endif
     }
 }

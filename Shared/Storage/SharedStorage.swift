@@ -18,8 +18,6 @@ public final class SharedStorage {
         public static let targetHigh = "locksugar_target_high"
         public static let lastSyncTimestamp = "locksugar_last_sync_timestamp"
         public static let dynamicYAxisEnabled = "locksugar_dynamic_yaxis_enabled"
-        public static let showHeadphoneBattery = "locksugar_show_headphone_battery"
-        public static let headphoneBatteryInfo = "locksugar_headphone_battery_info"
         public static let widgetTapAction = "locksugar_widget_tap_action"
         public static let widgetTapCustomURL = "locksugar_widget_tap_custom_url"
         public static let insulinShortcutName = "locksugar_insulin_shortcut_name"
@@ -121,50 +119,6 @@ public final class SharedStorage {
         }
         set {
             userDefaults.set(newValue, forKey: Key.dynamicYAxisEnabled)
-        }
-    }
-    
-    public var showHeadphoneBattery: Bool {
-        get {
-            if userDefaults.object(forKey: Key.showHeadphoneBattery) == nil {
-                return true // default enabled
-            }
-            return userDefaults.bool(forKey: Key.showHeadphoneBattery)
-        }
-        set {
-            userDefaults.set(newValue, forKey: Key.showHeadphoneBattery)
-        }
-    }
-    
-    public var headphoneBatteryInfo: HeadphoneBatteryInfo? {
-        get {
-            guard let data = userDefaults.data(forKey: Key.headphoneBatteryInfo) else { return nil }
-            return try? JSONDecoder().decode(HeadphoneBatteryInfo.self, from: data)
-        }
-        set {
-            if let newValue = newValue, let data = try? JSONEncoder().encode(newValue) {
-                userDefaults.set(data, forKey: Key.headphoneBatteryInfo)
-            } else {
-                userDefaults.removeObject(forKey: Key.headphoneBatteryInfo)
-            }
-        }
-    }
-    
-    public func updateHeadphoneBattery(isConnected: Bool, batteryLevel: Int?, deviceName: String?) {
-        if isConnected {
-            self.headphoneBatteryInfo = HeadphoneBatteryInfo(
-                isConnected: true,
-                batteryLevel: batteryLevel,
-                deviceName: deviceName,
-                updatedAt: Date()
-            )
-        } else {
-            self.headphoneBatteryInfo = HeadphoneBatteryInfo(
-                isConnected: false,
-                batteryLevel: nil,
-                deviceName: nil,
-                updatedAt: Date()
-            )
         }
     }
     
@@ -288,7 +242,6 @@ public final class SharedStorage {
         userDefaults.removeObject(forKey: Key.targetHigh)
         userDefaults.removeObject(forKey: Key.lastSyncTimestamp)
         userDefaults.removeObject(forKey: Key.dynamicYAxisEnabled)
-        userDefaults.removeObject(forKey: Key.headphoneBatteryInfo)
         userDefaults.removeObject(forKey: Key.widgetTapAction)
         userDefaults.removeObject(forKey: Key.widgetTapCustomURL)
         userDefaults.removeObject(forKey: Key.insulinShortcutName)

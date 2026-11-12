@@ -12,11 +12,6 @@
 		F1A1B2C3D4E5F60100000003 /* GlucoseActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1B2C3D4E5F60100000001 /* GlucoseActivityAttributes.swift */; };
 		F2A1B2C3D4E5F60100000002 /* LockSugarLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A1B2C3D4E5F60100000001 /* LockSugarLiveActivity.swift */; };
 		F3A1B2C3D4E5F60100000002 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A1B2C3D4E5F60100000001 /* LiveActivityManager.swift */; };
-		F4A1B2C3D4E5F60100000002 /* HeadphoneBatteryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A1B2C3D4E5F60100000001 /* HeadphoneBatteryInfo.swift */; };
-		F4A1B2C3D4E5F60100000003 /* HeadphoneBatteryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A1B2C3D4E5F60100000001 /* HeadphoneBatteryInfo.swift */; };
-		F4A1B2C3D4E5F60100000004 /* HeadphoneBatteryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A1B2C3D4E5F60100000001 /* HeadphoneBatteryInfo.swift */; };
-		F5A1B2C3D4E5F60100000002 /* BluetoothBatteryMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B2C3D4E5F60100000001 /* BluetoothBatteryMonitor.swift */; };
-		F5A1B2C3D4E5F60100000003 /* BluetoothBatteryMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A1B2C3D4E5F60100000001 /* BluetoothBatteryMonitor.swift */; };
 		F6A1B2C3D4E5F60100000002 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A1B2C3D4E5F60100000001 /* SettingsView.swift */; };
 		A1B2C3D4E5F6012345678901 /* LockSugarSystemSmallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678902 /* LockSugarSystemSmallView.swift */; };
 		08B8DC06F4B5865C3435327D /* LockSugarInlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AF96AFDA8EF1711AAD8DC4 /* LockSugarInlineView.swift */; };
@@ -102,8 +97,6 @@
 		F1A1B2C3D4E5F60100000001 /* GlucoseActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseActivityAttributes.swift; sourceTree = "<group>"; };
 		F2A1B2C3D4E5F60100000001 /* LockSugarLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarLiveActivity.swift; sourceTree = "<group>"; };
 		F3A1B2C3D4E5F60100000001 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
-		F4A1B2C3D4E5F60100000001 /* HeadphoneBatteryInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadphoneBatteryInfo.swift; sourceTree = "<group>"; };
-		F5A1B2C3D4E5F60100000001 /* BluetoothBatteryMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothBatteryMonitor.swift; sourceTree = "<group>"; };
 		F6A1B2C3D4E5F60100000001 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6012345678902 /* LockSugarSystemSmallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockSugarSystemSmallView.swift; sourceTree = "<group>"; };
 		9A367595782765F550E5CF53 /* LockSugarWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LockSugarWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,7 +119,6 @@
 				02810BCFE26B0C8140BCD629 /* GlucoseReading.swift */,
 				ECE42ACE8637B2D3CFED4CCD /* LibreLinkUpResponses.swift */,
 				F1A1B2C3D4E5F60100000001 /* GlucoseActivityAttributes.swift */,
-				F4A1B2C3D4E5F60100000001 /* HeadphoneBatteryInfo.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -150,17 +142,8 @@
 				01E9F216D2CC17EB6299C5F7 /* Models */,
 				6A0DF80CAD5C9CC45497BEA9 /* Network */,
 				F746C53B33FA0E5A46646367 /* Storage */,
-				F5A1B2C3D4E5F60100000000 /* Bluetooth */,
 			);
 			path = Shared;
-			sourceTree = "<group>";
-		};
-		F5A1B2C3D4E5F60100000000 /* Bluetooth */ = {
-			isa = PBXGroup;
-			children = (
-				F5A1B2C3D4E5F60100000001 /* BluetoothBatteryMonitor.swift */,
-			);
-			path = Bluetooth;
 			sourceTree = "<group>";
 		};
 		36CA16904F33ED4487A6A47C /* LockSugarWidget */ = {
@@ -376,7 +359,6 @@
 				9110FB2A8BB5DACC47463225 /* MockURLProtocol.swift in Sources */,
 				7B1F717118D0BE12E59CD251 /* SharedStorage.swift in Sources */,
 				9CB73ED639966282411D97C5 /* main.swift in Sources */,
-				F4A1B2C3D4E5F60100000004 /* HeadphoneBatteryInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,8 +380,6 @@
 				8A042371E11B17118F6C16B6 /* SharedStorage.swift in Sources */,
 				F1A1B2C3D4E5F60100000003 /* GlucoseActivityAttributes.swift in Sources */,
 				F2A1B2C3D4E5F60100000002 /* LockSugarLiveActivity.swift in Sources */,
-				F4A1B2C3D4E5F60100000003 /* HeadphoneBatteryInfo.swift in Sources */,
-				F5A1B2C3D4E5F60100000003 /* BluetoothBatteryMonitor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -419,8 +399,6 @@
 				350E9DE4B28D79FB15848AD4 /* WidgetSetupInstructionsView.swift in Sources */,
 				F1A1B2C3D4E5F60100000002 /* GlucoseActivityAttributes.swift in Sources */,
 				F3A1B2C3D4E5F60100000002 /* LiveActivityManager.swift in Sources */,
-				F4A1B2C3D4E5F60100000002 /* HeadphoneBatteryInfo.swift in Sources */,
-				F5A1B2C3D4E5F60100000002 /* BluetoothBatteryMonitor.swift in Sources */,
 				F6A1B2C3D4E5F60100000002 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
