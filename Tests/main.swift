@@ -637,29 +637,34 @@ runTest("SharedStorage.widgetTapActionAndURL") {
     
     // 1. Default is .libre3Direct
     assertEqual(storage.widgetTapAction, .libre3Direct)
-    assertEqual(storage.resolvedWidgetURL, URL(string: "itms-apps://apps.apple.com/app/id1525101160"))
+    assertEqual(storage.resolvedWidgetURL, URL(string: "freestylelibre3://"))
+    assertTrue(storage.widgetLaunchURL.absoluteString.starts(with: "locksugar://widget-tap?target="))
+    assertTrue(storage.widgetLaunchURL.absoluteString.contains("freestylelibre3"))
     
     // 2. Change to .libre3Shortcut
     storage.widgetTapAction = .libre3Shortcut
     assertEqual(storage.widgetTapAction, .libre3Shortcut)
     assertEqual(storage.resolvedWidgetURL, URL(string: "shortcuts://run-shortcut?name=Libre%203"))
+    assertTrue(storage.widgetLaunchURL.absoluteString.contains("shortcuts"))
     
     // 3. Change to .lockSugar
     storage.widgetTapAction = .lockSugar
     assertEqual(storage.widgetTapAction, .lockSugar)
     assertEqual(storage.resolvedWidgetURL, URL(string: "locksugar://"))
+    assertEqual(storage.widgetLaunchURL, URL(string: "locksugar://open"))
     
     // 4. Change to .custom
     storage.widgetTapAction = .custom
     storage.widgetTapCustomURL = "mycgm://action"
     assertEqual(storage.widgetTapAction, .custom)
     assertEqual(storage.resolvedWidgetURL, URL(string: "mycgm://action"))
+    assertTrue(storage.widgetLaunchURL.absoluteString.contains("mycgm"))
     
     // 5. Clear all restores default
     storage.clearAll()
     assertEqual(storage.widgetTapAction, .libre3Direct)
     assertEqual(storage.widgetTapCustomURL, "")
-    assertEqual(storage.resolvedWidgetURL, URL(string: "itms-apps://apps.apple.com/app/id1525101160"))
+    assertEqual(storage.resolvedWidgetURL, URL(string: "freestylelibre3://"))
 }
 
 runTest("GlucoseReading.deltaWithTrendArrowFormatting") {

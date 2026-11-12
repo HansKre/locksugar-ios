@@ -80,12 +80,14 @@ public struct LockSugarRectangularView: View {
                             .widgetAccentable()
                     }
                     
-                    if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected, let pct = headphone.formattedPercentage {
+                    if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected {
                         HStack(spacing: 2) {
                             Image(systemName: "headphones")
                                 .font(.system(size: 9, weight: .semibold))
-                            Text(pct)
-                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                            if let pct = headphone.formattedPercentage {
+                                Text(pct)
+                                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                            }
                         }
                         .foregroundColor(.secondary)
                         .widgetAccentable()
@@ -103,12 +105,14 @@ public struct LockSugarRectangularView: View {
                     .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundColor(.secondary)
                 Spacer()
-                if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected, let pct = headphone.formattedPercentage {
+                if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected {
                     HStack(spacing: 2) {
                         Image(systemName: "headphones")
                             .font(.system(size: 9, weight: .semibold))
-                        Text(pct)
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                        if let pct = headphone.formattedPercentage {
+                            Text(pct)
+                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                        }
                     }
                     .foregroundColor(.secondary)
                     .widgetAccentable()

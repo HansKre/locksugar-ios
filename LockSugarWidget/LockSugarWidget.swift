@@ -71,7 +71,7 @@ public struct GlucoseTimelineProvider: TimelineProvider {
             isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled,
             headphoneInfo: HeadphoneBatteryInfo(isConnected: true, batteryLevel: 85, deviceName: "AirPods Pro"),
             showHeadphoneBattery: storage.showHeadphoneBattery,
-            widgetURL: storage.resolvedWidgetURL
+            widgetURL: storage.widgetLaunchURL
         )
     }
     
@@ -93,7 +93,7 @@ public struct GlucoseTimelineProvider: TimelineProvider {
             isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled,
             headphoneInfo: storage.headphoneBatteryInfo,
             showHeadphoneBattery: storage.showHeadphoneBattery,
-            widgetURL: storage.resolvedWidgetURL
+            widgetURL: storage.widgetLaunchURL
         )
         completion(entry)
     }
@@ -122,7 +122,7 @@ public struct GlucoseTimelineProvider: TimelineProvider {
                 isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled,
                 headphoneInfo: storage.headphoneBatteryInfo,
                 showHeadphoneBattery: storage.showHeadphoneBattery,
-                widgetURL: storage.resolvedWidgetURL
+                widgetURL: storage.widgetLaunchURL
             )
             let reloadDate = TimelineScheduler.calculateNextReloadDate(for: reading?.timestamp, from: Date())
             

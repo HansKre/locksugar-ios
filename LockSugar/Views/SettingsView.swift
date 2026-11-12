@@ -57,7 +57,7 @@ public struct SettingsView: View {
                 // MARK: - Widget Tap Action
                 Section(
                     header: Text("Widget Tap Action"),
-                    footer: Text("Choose which app opens when you tap the Lock Screen widget. Since Abbott does not register a custom URL scheme for FreeStyle Libre 3, the Direct option links directly to the App Store page with the Open button.")
+                    footer: Text("Choose which app opens when you tap the Lock Screen widget. Select Direct Scheme to attempt opening FreeStyle Libre 3 directly (freestylelibre3://), or Apple Shortcut to run the \"Libre 3\" shortcut that launches the app.")
                 ) {
                     Picker("Tap Action", selection: Binding(
                         get: { viewModel.widgetTapAction },
@@ -66,6 +66,18 @@ public struct SettingsView: View {
                         ForEach(SharedStorage.WidgetTapActionOption.allCases) { option in
                             Text(option.displayName).tag(option)
                         }
+                    }
+                    
+                    if viewModel.widgetTapAction == .libre3Direct {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Label("Direct Scheme (freestylelibre3://)", systemImage: "bolt.fill")
+                                .font(.subheadline.bold())
+                                .foregroundColor(.accentColor)
+                            Text("Attempts to launch the FreeStyle Libre 3 app directly. If direct opening is not supported on your iOS version, LockSugar automatically falls back to the \"Libre 3\" shortcut or App Store.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 4)
                     }
                     
                     if viewModel.widgetTapAction == .custom {
@@ -96,7 +108,10 @@ public struct SettingsView: View {
                 }
                 
                 // MARK: - Bluetooth Headphone Status
-                Section(header: Text("Connected Bluetooth Headphones")) {
+                Section(
+                    header: Text("Connected Bluetooth Headphones"),
+                    footer: Text("Apple's iOS sandbox only exposes battery percentage for Bluetooth Low Energy (BLE) devices supporting GATT Battery Service. Classic Bluetooth audio devices (such as Shokz OpenRun) send battery via internal Hands-Free Profile commands reserved for iOS system widgets.")
+                ) {
                     let info = batteryMonitor.currentInfo ?? viewModel.headphoneInfo
                     let isConnected = info?.isConnected == true
                     

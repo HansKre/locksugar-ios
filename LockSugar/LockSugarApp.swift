@@ -17,6 +17,9 @@ struct LockSugarApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { url in
+                    handleIncomingURL(url)
+                }
         }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
@@ -33,6 +36,52 @@ struct LockSugarApp: App {
             }
         }
     }
+    
+    // MARK: - Widget Tap & URL Trampoline
+    
+    private func handleIncomingURL(_ url: URL) {
+        #if canImport(UIKit)
+        DispatchQueue.main.async {
+            var targetURL: URL?
+            
+            // 1. If target URL was explicitly encoded as a query item
+            if let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+               let targetString = components.queryItems?.first(where: { $0.name == "target" })?.value,
+               let parsed = URL(string: targetString) {
+                targetURL = parsed
+            } else if url.scheme != "locksugar" {
+                // 2. If url itself is an external scheme
+                targetURL = url
+            } else {
+                // 3. Otherwise, resolve configured Widget Tap Action from SharedStorage
+                targetURL = SharedStorage.shared.resolvedWidgetURL
+            }
+            
+            guard let destination = targetURL, destination.scheme != "locksugar" else {
+                // Destined for LockSugar itself; do nothing and stay in LockSugar
+                return
+            }
+            
+            Self.openTargetURL(destination)
+        }
+        #endif
+    }
+    
+    #if canImport(UIKit)
+    private static func openTargetURL(_ destination: URL) {
+        UIApplication.shared.open(destination, options: [:]) { success in
+            if !success && destination.scheme == "freestylelibre3" {
+                // If direct scheme fails, fallback to Apple Shortcut or App Store
+                if let shortcutURL = URL(string: SharedStorage.WidgetTapActionOption.libre3Shortcut.rawValue),
+                   UIApplication.shared.canOpenURL(shortcutURL) {
+                    UIApplication.shared.open(shortcutURL, options: [:], completionHandler: nil)
+                } else if let appStoreURL = URL(string: "itms-apps://apps.apple.com/app/id1525101160") {
+                    UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
+                }
+            }
+        }
+    }
+    #endif
     
     // MARK: - Background Refresh Task Registration
     

@@ -32,7 +32,19 @@ public final class BluetoothBatteryMonitor: NSObject, ObservableObject {
     
     public init(storage: SharedStorage = .shared) {
         self.storage = storage
-        self.currentInfo = storage.headphoneBatteryInfo
+        // Purge any stale preset / unverified battery levels (e.g. 20% from earlier testing)
+        if let stored = storage.headphoneBatteryInfo, stored.batteryLevel == 20 {
+            let sanitized = HeadphoneBatteryInfo(
+                isConnected: stored.isConnected,
+                batteryLevel: nil,
+                deviceName: stored.deviceName,
+                updatedAt: Date()
+            )
+            storage.headphoneBatteryInfo = sanitized
+            self.currentInfo = sanitized
+        } else {
+            self.currentInfo = storage.headphoneBatteryInfo
+        }
         super.init()
         
         #if canImport(CoreBluetooth) && !os(watchOS)
@@ -81,9 +93,9 @@ public final class BluetoothBatteryMonitor: NSObject, ObservableObject {
         }
         
         if isBluetoothConnected {
-            // Retain existing battery level if already known for this device
-            let currentLevel = (currentInfo?.deviceName == deviceName) ? currentInfo?.batteryLevel : nil
-            updateBatteryInfo(isConnected: true, level: currentLevel, deviceName: deviceName)
+            // Retain battery level only if confirmed for this exact device and not an old stale 20% preset
+            let existingLevel = (currentInfo?.deviceName == deviceName && currentInfo?.batteryLevel != 20) ? currentInfo?.batteryLevel : nil
+            updateBatteryInfo(isConnected: true, level: existingLevel, deviceName: deviceName)
             
             #if canImport(CoreBluetooth)
             triggerPeripheralsSearch()
@@ -123,9 +135,6 @@ public final class BluetoothBatteryMonitor: NSObject, ObservableObject {
                     connectToPeripheral(peripheral)
                     return
                 }
-            } else {
-                connectToPeripheral(peripheral)
-                return
             }
         }
         
@@ -248,12 +257,16 @@ extension BluetoothBatteryMonitor: CBCentralManagerDelegate, CBPeripheralDelegat
     
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         guard characteristic.uuid == batteryLevelCharacteristicUUID,
-              let data = characteristic.value,
-              let firstByte = data.first else { return }
+              let data = characteristic.value, !data.isEmpty else { return }
         
-        let level = Int(firstByte)
+        let hexBytes = data.map { String(format: "%02X", $0) }.joined(separator: " ")
+        print("[BluetoothBatteryMonitor] didUpdateValue for 2A19: \(hexBytes) (\(data.count) bytes)")
+        
+        let rawLevel = Int(data[0])
+        guard (0...100).contains(rawLevel) else { return }
+        
         let name = peripheral.name ?? currentInfo?.deviceName ?? "Bluetooth Device"
-        updateBatteryInfo(isConnected: true, level: level, deviceName: name)
+        updateBatteryInfo(isConnected: true, level: rawLevel, deviceName: name)
     }
 }
 #endif

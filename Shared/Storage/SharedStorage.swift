@@ -170,7 +170,7 @@ public final class SharedStorage {
     // MARK: - Widget Tap Action
     
     public enum WidgetTapActionOption: String, CaseIterable, Identifiable {
-        case libre3Direct = "itms-apps://apps.apple.com/app/id1525101160"
+        case libre3Direct = "freestylelibre3://"
         case libre3Shortcut = "shortcuts://run-shortcut?name=Libre%203"
         case lockSugar = "locksugar://"
         case custom = "custom"
@@ -180,7 +180,7 @@ public final class SharedStorage {
         public var displayName: String {
             switch self {
             case .libre3Direct:
-                return "FreeStyle Libre 3 (App Store / Direct)"
+                return "FreeStyle Libre 3 (Direct Scheme)"
             case .libre3Shortcut:
                 return "FreeStyle Libre 3 (Apple Shortcut: Libre 3)"
             case .lockSugar:
@@ -226,6 +226,20 @@ public final class SharedStorage {
             let trimmed = widgetTapCustomURL.trimmingCharacters(in: .whitespacesAndNewlines)
             return URL(string: trimmed)
         }
+    }
+    
+    /// URL assigned to WidgetKit `.widgetURL()`: points to `locksugar://widget-tap` with encoded target
+    /// to guarantee SpringBoard invokes LockSugar so `.onOpenURL` can trampoline to the configured target.
+    public var widgetLaunchURL: URL {
+        if widgetTapAction == .lockSugar {
+            return URL(string: "locksugar://open")!
+        }
+        if let target = resolvedWidgetURL?.absoluteString,
+           let encoded = target.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+           let url = URL(string: "locksugar://widget-tap?target=\(encoded)") {
+            return url
+        }
+        return URL(string: "locksugar://widget-tap")!
     }
     
     public func clearAll() {
