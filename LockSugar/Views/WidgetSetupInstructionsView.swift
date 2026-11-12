@@ -109,7 +109,7 @@ public struct WidgetSetupInstructionsView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Add to Apple CarPlay")
                     .font(.title2.bold())
-                Text("Display your live glucose, trend arrow, delta, and target gauge on your car's Dashboard.")
+                Text("Display your live glucose, trend arrow, and delta on your car's Dashboard.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
