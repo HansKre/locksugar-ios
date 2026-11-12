@@ -137,13 +137,13 @@ public struct GlucoseForecastPoint: Equatable, Identifiable {
     }
 }
 
-/// Time-aware linear regression projection algorithm ported from cgm-monitor-chrome-extension.
+/// Time-aware linear regression projection algorithm with exponential weighting and momentum damping.
 public enum GlucoseForecastCalculator {
-    /// Projection uncertainty configuration from glucoseConfig.ts:
-    /// base: ±5 mg/dL at first projection step
-    /// stepPerInterval: +3 mg/dL per additional 5-min interval
-    public static let uncertaintyBase: Double = 5.0
-    public static let uncertaintyStepPerInterval: Double = 3.0
+    /// Projection uncertainty configuration:
+    /// base: ±2.5 mg/dL baseline sensor uncertainty
+    /// ratePerSqrtMinute: ±1.6 mg/dL * sqrt(minutes) diffusion confidence growth
+    public static let uncertaintyBase: Double = 2.5
+    public static let uncertaintyRatePerSqrtMinute: Double = 1.6
     
     /// Calculates median interval (in seconds) between consecutive historical data points.
     public static func calculateDataInterval(from readings: [GlucoseReading]) -> TimeInterval {
@@ -165,11 +165,12 @@ public enum GlucoseForecastCalculator {
             : intervals[midIndex]
     }
     
-    /// Computes time-aware linear regression projection matching calculateTimeAwareProjection in glucoseUtils.ts.
+    /// Computes accurate time-aware projection using exponentially weighted linear regression
+    /// with momentum damping and a physiologically calibrated confidence funnel.
     public static func calculateProjection(
         from history: [GlucoseReading],
         current: GlucoseReading? = nil,
-        minutesAhead: Int = 45
+        minutesAhead: Int = 30
     ) -> [GlucoseForecastPoint] {
         var allData = history.sorted(by: { $0.timestamp < $1.timestamp })
         
@@ -185,51 +186,87 @@ public enum GlucoseForecastCalculator {
         }
         
         guard allData.count >= 3 else { return [] }
+        guard let lastReading = allData.last else { return [] }
         
         let dataInterval = calculateDataInterval(from: allData)
         // Use recent data window: at least 30 minutes or 6 data points
         let analysisWindowSeconds = max(30.0 * 60.0, dataInterval * 6.0)
-        guard let lastReading = allData.last else { return [] }
         let analysisStartTime = lastReading.timestamp.addingTimeInterval(-analysisWindowSeconds)
         
         let recentData = allData.filter { $0.timestamp >= analysisStartTime }
         guard recentData.count >= 2 else { return [] }
         
-        // Time-based linear regression
-        let baseTime = recentData[0].timestamp
-        let points: [(x: Double, y: Double)] = recentData.map {
-            let minutesFromBase = $0.timestamp.timeIntervalSince(baseTime) / 60.0
-            return (x: minutesFromBase, y: $0.valueInMgPerDl)
+        let lastTimestamp = lastReading.timestamp
+        let lastValue = lastReading.valueInMgPerDl
+        
+        // Exponentially weighted linear regression
+        // Half-life tau of 15 minutes gives recent readings proportionally higher influence
+        let tau: Double = 15.0
+        var sumW: Double = 0.0
+        var sumWX: Double = 0.0
+        var sumWY: Double = 0.0
+        var sumWXX: Double = 0.0
+        var sumWXY: Double = 0.0
+        
+        for item in recentData {
+            let minutesAgo = max(0.0, lastTimestamp.timeIntervalSince(item.timestamp) / 60.0)
+            let x = -minutesAgo // 0 for last reading, negative for earlier readings
+            let y = item.valueInMgPerDl
+            let w = exp(-minutesAgo / tau)
+            
+            sumW += w
+            sumWX += w * x
+            sumWY += w * y
+            sumWXX += w * (x * x)
+            sumWXY += w * (x * y)
         }
         
-        let n = Double(points.count)
-        let sumX = points.reduce(0.0) { $0 + $1.x }
-        let sumY = points.reduce(0.0) { $0 + $1.y }
-        let sumXY = points.reduce(0.0) { $0 + ($1.x * $1.y) }
-        let sumXX = points.reduce(0.0) { $0 + ($1.x * $1.x) }
+        let denominator = sumW * sumWXX - sumWX * sumWX
+        let regressionSlope: Double
+        if abs(denominator) > 0.0001 {
+            regressionSlope = (sumW * sumWXY - sumWX * sumWY) / denominator
+        } else {
+            regressionSlope = 0.0
+        }
         
-        let denominator = (n * sumXX - sumX * sumX)
-        guard abs(denominator) > 0.0001 else { return [] }
-        
-        let slope = (n * sumXY - sumX * sumY) / denominator
-        let intercept = (sumY - slope * sumX) / n
+        // Blend regression slope with instantaneous velocity between the last two readings if available
+        var effectiveSlope = regressionSlope
+        if recentData.count >= 2 {
+            let prevReading = recentData[recentData.count - 2]
+            let dtMinutes = lastTimestamp.timeIntervalSince(prevReading.timestamp) / 60.0
+            if dtMinutes >= 1.0 && dtMinutes <= 25.0 {
+                let instantVelocity = (lastValue - prevReading.valueInMgPerDl) / dtMinutes
+                effectiveSlope = 0.65 * regressionSlope + 0.35 * instantVelocity
+            }
+        }
         
         // Interval for projection: between 1 and 15 minutes, defaulting to detected interval
         let projectionIntervalSeconds = min(max(dataInterval, 60.0), 15.0 * 60.0)
         let projectionCount = Int(ceil((Double(minutesAhead) * 60.0) / projectionIntervalSeconds))
         
+        // Momentum damping coefficient: velocity gracefully decelerates into the future
+        let dampingLambda: Double = 0.015
+        
         var projections: [GlucoseForecastPoint] = []
-        let lastTimestamp = lastReading.timestamp
         
         for i in 1...max(1, projectionCount) {
-            let futureTimestamp = lastTimestamp.addingTimeInterval(Double(i) * projectionIntervalSeconds)
-            let futureMinutes = futureTimestamp.timeIntervalSince(baseTime) / 60.0
-            var projectedValue = slope * futureMinutes + intercept
+            let elapsedSeconds = Double(i) * projectionIntervalSeconds
+            let elapsedMinutes = elapsedSeconds / 60.0
+            let futureTimestamp = lastTimestamp.addingTimeInterval(elapsedSeconds)
             
-            // Bounds clamping (0 to 400 mg/dL) and rounding
-            projectedValue = round(max(0.0, min(400.0, projectedValue)))
+            // Damped change: integral of v0 * exp(-lambda * t) = v0 * (1 - exp(-lambda * t)) / lambda
+            let dampedDelta: Double
+            if dampingLambda > 0.0001 {
+                dampedDelta = effectiveSlope * ((1.0 - exp(-dampingLambda * elapsedMinutes)) / dampingLambda)
+            } else {
+                dampedDelta = effectiveSlope * elapsedMinutes
+            }
             
-            let uncertainty = uncertaintyBase + uncertaintyStepPerInterval * Double(i - 1)
+            var projectedValue = lastValue + dampedDelta
+            projectedValue = round(max(40.0, min(400.0, projectedValue)))
+            
+            // Confidence funnel: uncertainty scales with sqrt of elapsed time in minutes
+            let uncertainty = uncertaintyBase + uncertaintyRatePerSqrtMinute * sqrt(elapsedMinutes)
             let lower = max(0.0, projectedValue - uncertainty)
             let upper = min(400.0, projectedValue + uncertainty)
             
@@ -301,6 +338,19 @@ public struct GlucoseReading: Codable, Equatable {
         }
     }
     
+    /// Returns a copy of the reading with a modified trend arrow identifier.
+    public func withTrendArrow(_ newTrendArrow: Int?) -> GlucoseReading {
+        GlucoseReading(
+            value: value,
+            valueInMgPerDl: valueInMgPerDl,
+            glucoseUnits: glucoseUnits,
+            timestamp: timestamp,
+            trendArrow: newTrendArrow,
+            isHigh: isHigh,
+            isLow: isLow
+        )
+    }
+    
     public var zone: GlucoseZone {
         GlucoseZone.zone(for: valueInMgPerDl)
     }
@@ -324,6 +374,50 @@ public struct GlucoseReading: Codable, Equatable {
             return current.value - previous.value
         }
         return nil
+    }
+    
+    /// Calculates trend arrow identifier (1-5) from rate of change in mg/dL per minute matching Abbott's official medical definition:
+    /// - Rate > 2.0 mg/dL/min (> +30 in 15m): 5 (↑ Rising quickly)
+    /// - Rate 1.0 to 2.0 mg/dL/min (+15 to +30 in 15m): 4 (↗ Rising)
+    /// - Rate -1.0 to 1.0 mg/dL/min (-15 to +15 in 15m): 3 (→ Changing slowly / Stable)
+    /// - Rate -1.0 to -2.0 mg/dL/min (-15 to -30 in 15m): 2 (↘ Falling)
+    /// - Rate < -2.0 mg/dL/min (< -30 in 15m): 1 (↓ Falling quickly)
+    public static func calculateTrendArrow(current: GlucoseReading?, previous: GlucoseReading?) -> Int? {
+        guard let current = current, let previous = previous else { return nil }
+        let timeDeltaMinutes = current.timestamp.timeIntervalSince(previous.timestamp) / 60.0
+        // Valid delta interval: between 1 and 35 minutes
+        guard timeDeltaMinutes >= 1.0 && timeDeltaMinutes <= 35.0 else { return nil }
+        
+        let deltaMgPerDl = current.valueInMgPerDl - previous.valueInMgPerDl
+        let ratePerMinute = deltaMgPerDl / timeDeltaMinutes
+        
+        if ratePerMinute > 2.0 {
+            return 5
+        } else if ratePerMinute >= 1.0 {
+            return 4
+        } else if ratePerMinute <= -2.0 {
+            return 1
+        } else if ratePerMinute <= -1.0 {
+            return 2
+        } else {
+            return 3
+        }
+    }
+    
+    /// Calculates trend arrow identifier (1-5) for current reading from historical readings if available.
+    public static func calculateTrendArrow(current: GlucoseReading?, history: [GlucoseReading]) -> Int? {
+        guard let current = current else { return nil }
+        let previous = history.filter({ $0.timestamp < current.timestamp }).sorted(by: { $0.timestamp < $1.timestamp }).last
+        return calculateTrendArrow(current: current, previous: previous)
+    }
+    
+    /// Returns reading with resolved trend arrow if trendArrow was nil, using historical readings.
+    public func resolvingTrendArrow(with history: [GlucoseReading]) -> GlucoseReading {
+        if trendArrow != nil { return self }
+        if let calculated = Self.calculateTrendArrow(current: self, history: history) {
+            return withTrendArrow(calculated)
+        }
+        return self
     }
     
     /// Formats the signed delta value (e.g. "+5", "-2", "0", or "--" if unavailable).

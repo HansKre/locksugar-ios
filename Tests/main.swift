@@ -153,6 +153,47 @@ runTest("GlucoseReading.trendArrows") {
     assertEqual(readingNil.trendArrowSymbol, "→")
 }
 
+runTest("GlucoseReading.calculateTrendArrowAbbottDefinitions") {
+    let now = Date()
+    let prev15 = now.addingTimeInterval(-15 * 60)
+    
+    // 1. Delta +17 in 15 min: rate = 17 / 15 = 1.133 mg/dL/min -> 4 (↗ Rising)
+    let curRising = GlucoseReading(value: 156, valueInMgPerDl: 156, glucoseUnits: .mgPerDl, timestamp: now)
+    let prevRising = GlucoseReading(value: 139, valueInMgPerDl: 139, glucoseUnits: .mgPerDl, timestamp: prev15)
+    let arrowRising = GlucoseReading.calculateTrendArrow(current: curRising, previous: prevRising)
+    assertEqual(arrowRising, 4)
+    assertEqual(GlucoseReading.arrowSymbol(for: arrowRising), "↗")
+    
+    // 2. Delta +35 in 15 min: rate = 35 / 15 = 2.333 mg/dL/min -> 5 (↑ Rising quickly)
+    let curRisingFast = GlucoseReading(value: 174, valueInMgPerDl: 174, glucoseUnits: .mgPerDl, timestamp: now)
+    let arrowRisingFast = GlucoseReading.calculateTrendArrow(current: curRisingFast, previous: prevRising)
+    assertEqual(arrowRisingFast, 5)
+    assertEqual(GlucoseReading.arrowSymbol(for: arrowRisingFast), "↑")
+    
+    // 3. Delta +5 in 15 min: rate = 5 / 15 = 0.333 mg/dL/min -> 3 (→ Changing slowly / Stable)
+    let curStable = GlucoseReading(value: 144, valueInMgPerDl: 144, glucoseUnits: .mgPerDl, timestamp: now)
+    let arrowStable = GlucoseReading.calculateTrendArrow(current: curStable, previous: prevRising)
+    assertEqual(arrowStable, 3)
+    assertEqual(GlucoseReading.arrowSymbol(for: arrowStable), "→")
+    
+    // 4. Delta -18 in 15 min: rate = -18 / 15 = -1.2 mg/dL/min -> 2 (↘ Falling)
+    let curFalling = GlucoseReading(value: 121, valueInMgPerDl: 121, glucoseUnits: .mgPerDl, timestamp: now)
+    let arrowFalling = GlucoseReading.calculateTrendArrow(current: curFalling, previous: prevRising)
+    assertEqual(arrowFalling, 2)
+    assertEqual(GlucoseReading.arrowSymbol(for: arrowFalling), "↘")
+    
+    // 5. Delta -35 in 15 min: rate = -35 / 15 = -2.333 mg/dL/min -> 1 (↓ Falling quickly)
+    let curFallingFast = GlucoseReading(value: 104, valueInMgPerDl: 104, glucoseUnits: .mgPerDl, timestamp: now)
+    let arrowFallingFast = GlucoseReading.calculateTrendArrow(current: curFallingFast, previous: prevRising)
+    assertEqual(arrowFallingFast, 1)
+    assertEqual(GlucoseReading.arrowSymbol(for: arrowFallingFast), "↓")
+    
+    // 6. resolvingTrendArrow helper
+    let resolved = curRising.resolvingTrendArrow(with: [prevRising])
+    assertEqual(resolved.trendArrow, 4)
+    assertEqual(resolved.trendArrowSymbol, "↗")
+}
+
 runTest("GlucoseForecastCalculator.projections") {
     let now = Date()
     
@@ -193,6 +234,23 @@ runTest("GlucoseForecastCalculator.projections") {
     assertTrue(!risingProj.isEmpty)
     assertTrue(risingProj[0].value > 120.0)
     assertTrue(risingProj.last!.value > risingProj[0].value)
+    
+    // 4. Cone width check: verify tight confidence funnel
+    let totalBandWidthAtEnd = risingProj.last!.upperBound - risingProj.last!.lowerBound
+    // At 30 minutes, total band width should be tight (under 25 mg/dL), NOT explosive (e.g. 60+ mg/dL)
+    assertTrue(totalBandWidthAtEnd < 25.0)
+    assertTrue(totalBandWidthAtEnd > 15.0)
+    
+    // 5. 1-minute streaming data interval does NOT cause uncertainty explosion
+    var streamingHistory: [GlucoseReading] = []
+    for m in (0...30).reversed() {
+        let val = 120.0 + Double(30 - m) * 0.5
+        streamingHistory.append(GlucoseReading(value: val, valueInMgPerDl: val, glucoseUnits: .mgPerDl, timestamp: now.addingTimeInterval(-Double(m) * 60)))
+    }
+    let streamingProj = GlucoseForecastCalculator.calculateProjection(from: streamingHistory, minutesAhead: 30)
+    assertTrue(!streamingProj.isEmpty)
+    let streamingEndBandWidth = streamingProj.last!.upperBound - streamingProj.last!.lowerBound
+    assertTrue(streamingEndBandWidth < 25.0)
 }
 
 runTest("LibreLinkUpResponses.decodeGraph") {
@@ -526,6 +584,8 @@ await runAsyncTest("LibreLinkUpClient.freshestReadingFromGraphData") {
     let reading = try await client.getGraph(patientId: "p1", jwtToken: "tok", accountIdHash: "hash")
     assertEqual(reading.formattedValue, "142")
     assertEqual(reading.valueInMgPerDl, 142)
+    assertEqual(reading.trendArrow, 4)
+    assertEqual(reading.trendArrowSymbol, "↗")
 }
 
 runTest("TimelineScheduler.calculateNextReloadDate") {

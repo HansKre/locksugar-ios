@@ -249,12 +249,20 @@ public final class LibreLinkUpClient {
             }
         }
         
-        guard let reading = chosenReading else {
+        guard var reading = chosenReading else {
             throw LibreLinkUpError.noMeasurementData
         }
         
-        // Ensure chosen reading is included in history
-        if !parsedHistory.contains(where: { abs($0.timestamp.timeIntervalSince(reading.timestamp)) < 1.0 }) {
+        // If the reading has no trend arrow (common when newest measurement is parsed from graphData),
+        // resolve it against history using Abbott's official rate-of-change medical definitions.
+        if reading.trendArrow == nil {
+            reading = reading.resolvingTrendArrow(with: parsedHistory)
+        }
+        
+        // Ensure chosen reading is included in history with resolved attributes
+        if let existingIndex = parsedHistory.firstIndex(where: { abs($0.timestamp.timeIntervalSince(reading.timestamp)) < 1.0 }) {
+            parsedHistory[existingIndex] = reading
+        } else {
             parsedHistory.append(reading)
         }
         parsedHistory.sort(by: { $0.timestamp < $1.timestamp })

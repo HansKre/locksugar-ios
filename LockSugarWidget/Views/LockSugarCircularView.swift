@@ -70,7 +70,7 @@ public struct LockSugarSmallView: View {
         targetLow: Double = GlucoseZone.defaultTargetLow,
         targetHigh: Double = GlucoseZone.defaultTargetHigh
     ) {
-        self.reading = reading
+        self.reading = reading?.resolvingTrendArrow(with: history)
         self.history = history
         self.explicitDelta = delta
         self.targetLow = targetLow

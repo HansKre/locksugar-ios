@@ -60,7 +60,7 @@ public struct GlucoseTimelineProvider: TimelineProvider {
     public func placeholder(in context: Context) -> GlucoseEntry {
         let mock = GlucoseReading.previewMock
         let history = GlucoseReading.previewHistory
-        let forecast = GlucoseForecastCalculator.calculateProjection(from: history, current: mock)
+        let forecast = GlucoseForecastCalculator.calculateProjection(from: history, current: mock, minutesAhead: 30)
         return GlucoseEntry(
             date: Date(),
             reading: mock,
@@ -80,9 +80,10 @@ public struct GlucoseTimelineProvider: TimelineProvider {
             completion(placeholder(in: context))
             return
         }
-        let reading = storage.cachedGlucoseReading ?? .previewMock
+        let rawReading = storage.cachedGlucoseReading ?? .previewMock
         let history = storage.cachedGlucoseHistory.isEmpty ? GlucoseReading.previewHistory : storage.cachedGlucoseHistory
-        let forecast = GlucoseForecastCalculator.calculateProjection(from: history, current: reading)
+        let reading = rawReading.resolvingTrendArrow(with: history)
+        let forecast = GlucoseForecastCalculator.calculateProjection(from: history, current: reading, minutesAhead: 30)
         let entry = GlucoseEntry(
             date: Date(),
             reading: reading,
@@ -111,10 +112,11 @@ public struct GlucoseTimelineProvider: TimelineProvider {
             }
             
             let history = storage.cachedGlucoseHistory.isEmpty && reading == nil ? GlucoseReading.previewHistory : storage.cachedGlucoseHistory
-            let forecast = GlucoseForecastCalculator.calculateProjection(from: history, current: reading)
+            let resolvedReading = reading?.resolvingTrendArrow(with: history)
+            let forecast = GlucoseForecastCalculator.calculateProjection(from: history, current: resolvedReading, minutesAhead: 30)
             let entry = GlucoseEntry(
                 date: Date(),
-                reading: reading,
+                reading: resolvedReading,
                 history: history,
                 forecast: forecast,
                 targetLow: storage.targetLow ?? GlucoseZone.defaultTargetLow,
@@ -124,7 +126,7 @@ public struct GlucoseTimelineProvider: TimelineProvider {
                 showHeadphoneBattery: storage.showHeadphoneBattery,
                 widgetURL: storage.widgetLaunchURL
             )
-            let reloadDate = TimelineScheduler.calculateNextReloadDate(for: reading?.timestamp, from: Date())
+            let reloadDate = TimelineScheduler.calculateNextReloadDate(for: resolvedReading?.timestamp, from: Date())
             
             let timeline = Timeline(entries: [entry], policy: .after(reloadDate))
             completion(timeline)
