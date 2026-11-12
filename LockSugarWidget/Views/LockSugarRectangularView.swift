@@ -11,6 +11,7 @@ public struct LockSugarRectangularView: View {
     public let targetLow: Double
     public let targetHigh: Double
     public let isDynamicYAxisEnabled: Bool
+    public let historyDurationHours: Double
     public let insulinTimerURL: URL?
     public let libre3URL: URL?
     public let useZoneColors: Bool?
@@ -30,6 +31,7 @@ public struct LockSugarRectangularView: View {
         targetLow: Double = GlucoseZone.defaultTargetLow,
         targetHigh: Double = GlucoseZone.defaultTargetHigh,
         isDynamicYAxisEnabled: Bool = true,
+        historyDurationHours: Double = SharedStorage.defaultChartHistoryDurationHours,
         insulinTimerURL: URL? = nil,
         libre3URL: URL? = nil,
         useZoneColors: Bool? = nil
@@ -41,6 +43,7 @@ public struct LockSugarRectangularView: View {
         self.targetLow = targetLow
         self.targetHigh = targetHigh
         self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
+        self.historyDurationHours = historyDurationHours
         self.insulinTimerURL = insulinTimerURL
         self.libre3URL = libre3URL
         self.useZoneColors = useZoneColors
@@ -48,8 +51,11 @@ public struct LockSugarRectangularView: View {
     
     public var body: some View {
         ZStack {
-            VStack(alignment: .leading, spacing: 2) {
-                headerView
+            // Side-by-side layout: Stats on left, full-height chart on right
+            HStack(alignment: .center, spacing: 8) {
+                statsColumn
+                    .frame(maxWidth: 58, alignment: .leading)
+                
                 LockSugarRectangularChartView(
                     reading: reading,
                     history: history,
@@ -57,10 +63,12 @@ public struct LockSugarRectangularView: View {
                     targetLow: targetLow,
                     targetHigh: targetHigh,
                     isDynamicYAxisEnabled: isDynamicYAxisEnabled,
-                    useZoneColors: resolvedUseZoneColors
+                    useZoneColors: resolvedUseZoneColors,
+                    historyDurationHours: historyDurationHours
                 )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             
             // Interactive 50/50 split hit-testing:
             // Left 50% triggers Insulin Timer shortcut, right 50% triggers Libre 3
@@ -92,48 +100,52 @@ public struct LockSugarRectangularView: View {
         }
     }
     
-    // MARK: - Header
+    // MARK: - Left Stats Column
     
     @ViewBuilder
-    private var headerView: some View {
+    private var statsColumn: some View {
         if let reading = reading {
             let textColor = resolvedUseZoneColors ? reading.zoneColor : .primary
-            HStack(alignment: .firstTextBaseline) {
-                // Left: Value, Trend Arrow, Delta, Time (clustered together)
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    HStack(alignment: .firstTextBaseline, spacing: 3) {
-                        Text(reading.formattedValue)
-                            .font(.system(size: 19, weight: .bold, design: .rounded))
-                            .foregroundColor(textColor)
-                            .widgetAccentable(resolvedUseZoneColors)
-                        
-                        Text(reading.trendArrowSymbol)
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .foregroundColor(textColor)
-                            .widgetAccentable(resolvedUseZoneColors)
-                    }
+            VStack(alignment: .leading, spacing: 2) {
+                // Value and Trend Arrow
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text(reading.formattedValue)
+                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .foregroundColor(textColor)
+                        .widgetAccentable(resolvedUseZoneColors)
                     
-                    if let delta = delta {
-                        Text(GlucoseReading.formatDelta(delta))
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
-                            .foregroundColor(textColor)
-                            .widgetAccentable(resolvedUseZoneColors)
-                    }
-                    
-                    Text(reading.formattedTime)
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundColor(.secondary)
+                    Text(reading.trendArrowSymbol)
+                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                        .foregroundColor(textColor)
+                        .widgetAccentable(resolvedUseZoneColors)
+                }
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                
+                // Delta (e.g. -57)
+                if let delta = delta {
+                    Text(GlucoseReading.formatDelta(delta))
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundColor(textColor)
+                        .widgetAccentable(resolvedUseZoneColors)
+                        .lineLimit(1)
                 }
                 
-                Spacer()
+                // Timestamp
+                Text(reading.formattedTime)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
             }
             .opacity(reading.isStale() ? 0.5 : 1.0)
         } else {
-            HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("---")
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .font(.system(size: 26, weight: .bold, design: .rounded))
                     .foregroundColor(.secondary)
-                Spacer()
+                Text("--:--")
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(.secondary)
             }
             .opacity(0.5)
         }
@@ -150,6 +162,7 @@ public struct LockSugarRectangularChartView: View {
     public let targetHigh: Double
     public let isDynamicYAxisEnabled: Bool
     public let useZoneColors: Bool
+    public let historyDurationHours: Double
     
     public init(
         reading: GlucoseReading?,
@@ -158,7 +171,8 @@ public struct LockSugarRectangularChartView: View {
         targetLow: Double = GlucoseZone.defaultTargetLow,
         targetHigh: Double = GlucoseZone.defaultTargetHigh,
         isDynamicYAxisEnabled: Bool = true,
-        useZoneColors: Bool = false
+        useZoneColors: Bool = false,
+        historyDurationHours: Double = SharedStorage.defaultChartHistoryDurationHours
     ) {
         self.reading = reading
         self.history = history
@@ -167,6 +181,7 @@ public struct LockSugarRectangularChartView: View {
         self.targetHigh = targetHigh
         self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
         self.useZoneColors = useZoneColors
+        self.historyDurationHours = historyDurationHours
     }
     
     public var body: some View {
@@ -211,14 +226,13 @@ public struct LockSugarRectangularChartView: View {
             }
         }
         .chartXAxis {
+            // Subtle dashed hour lines without bottom text labels, reclaiming full vertical chart height
             AxisMarks(values: .stride(by: .hour, count: 1)) { _ in
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 0.8, dash: [2, 2]))
                     .foregroundStyle(Color.secondary.opacity(0.35))
-                AxisValueLabel(format: Date.FormatStyle().hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
-                    .font(.system(size: 8, weight: .regular, design: .rounded))
-                    .foregroundStyle(Color.secondary)
             }
         }
+        .chartXScale(domain: chartData.xDomainStart...chartData.xDomainEnd)
         .chartYAxis {
             AxisMarks(position: .trailing, values: chartData.yAxisTicks) { value in
                 AxisValueLabel {
@@ -243,11 +257,13 @@ public struct LockSugarRectangularChartView: View {
         let yAxisMin: Double
         let yAxisMax: Double
         let yAxisTicks: [Int]
+        let xDomainStart: Date
+        let xDomainEnd: Date
     }
     
     private func prepareChartData() -> PreparedChartData {
         let now = reading?.timestamp ?? Date()
-        let cutoff = now.addingTimeInterval(-3.25 * 3600) // ~3 hours of history
+        let cutoff = now.addingTimeInterval(-historyDurationHours * 3600)
         
         var recent = history.filter { $0.timestamp >= cutoff }.sorted(by: { $0.timestamp < $1.timestamp })
         if let reading = reading {
@@ -279,7 +295,7 @@ public struct LockSugarRectangularChartView: View {
         let yAxisTicks: [Int]
         
         if isDynamicYAxisEnabled {
-            // Current calibrated Y-axis: (min - 5) to (max + 5) of the actually available values
+            // Calibrated Y-axis: (min - 5) to (max + 5) of the actually available values
             var availableValues = recent.map(\.valueInMgPerDl)
             if availableValues.isEmpty {
                 if let reading = reading {
@@ -299,7 +315,7 @@ public struct LockSugarRectangularChartView: View {
             let mid = yAxisMin + step
             yAxisTicks = [Int(round(yAxisMin)), Int(round(mid)), Int(round(yAxisMax))]
         } else {
-            // Previous Y-axis: broad range including targets (70-180) and forecast bounds
+            // Broad range including targets (70-180) and forecast bounds
             var allValues = recent.map(\.valueInMgPerDl)
             allValues.append(contentsOf: forecast.map(\.value))
             allValues.append(contentsOf: forecast.map(\.lowerBound))
@@ -322,13 +338,18 @@ public struct LockSugarRectangularChartView: View {
             }
         }
         
+        let xDomainEnd = forecast.last?.timestamp ?? now
+        let safeDomainEnd = max(xDomainEnd, cutoff.addingTimeInterval(1800))
+        
         return PreparedChartData(
             recentHistory: recent,
             forecastLine: forecastLinePoints,
             forecastBand: forecastBandPoints,
             yAxisMin: yAxisMin,
             yAxisMax: yAxisMax,
-            yAxisTicks: yAxisTicks
+            yAxisTicks: yAxisTicks,
+            xDomainStart: cutoff,
+            xDomainEnd: safeDomainEnd
         )
     }
 }
@@ -341,6 +362,7 @@ public struct LockSugarMediumView: View {
     public let targetLow: Double
     public let targetHigh: Double
     public let isDynamicYAxisEnabled: Bool
+    public let historyDurationHours: Double
     
     public init(
         reading: GlucoseReading?,
@@ -349,7 +371,8 @@ public struct LockSugarMediumView: View {
         forecast: [GlucoseForecastPoint] = [],
         targetLow: Double = GlucoseZone.defaultTargetLow,
         targetHigh: Double = GlucoseZone.defaultTargetHigh,
-        isDynamicYAxisEnabled: Bool = true
+        isDynamicYAxisEnabled: Bool = true,
+        historyDurationHours: Double = SharedStorage.defaultChartHistoryDurationHours
     ) {
         self.reading = reading?.resolvingTrendArrow(with: history)
         self.history = history
@@ -358,6 +381,7 @@ public struct LockSugarMediumView: View {
         self.targetLow = targetLow
         self.targetHigh = targetHigh
         self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
+        self.historyDurationHours = historyDurationHours
     }
     
     public var body: some View {
@@ -369,6 +393,7 @@ public struct LockSugarMediumView: View {
             targetLow: targetLow,
             targetHigh: targetHigh,
             isDynamicYAxisEnabled: isDynamicYAxisEnabled,
+            historyDurationHours: historyDurationHours,
             useZoneColors: true
         )
         .padding(4)

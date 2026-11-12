@@ -6,6 +6,7 @@ public final class SharedStorage {
     public static let appGroupName = "group.com.hanskrebs.locksugar"
     public static let defaultBaseUrl = "https://api.libreview.io"
     public static let defaultMinimumVersion = "4.16.0"
+    public static let defaultChartHistoryDurationHours: Double = 3.0
     
     public enum Key {
         public static let accountIdHash = "locksugar_account_id_hash"
@@ -18,6 +19,7 @@ public final class SharedStorage {
         public static let targetHigh = "locksugar_target_high"
         public static let lastSyncTimestamp = "locksugar_last_sync_timestamp"
         public static let dynamicYAxisEnabled = "locksugar_dynamic_yaxis_enabled"
+        public static let chartHistoryDurationHours = "locksugar_chart_history_duration_hours"
         public static let widgetTapAction = "locksugar_widget_tap_action"
         public static let widgetTapCustomURL = "locksugar_widget_tap_custom_url"
         public static let insulinShortcutName = "locksugar_insulin_shortcut_name"
@@ -119,6 +121,16 @@ public final class SharedStorage {
         }
         set {
             userDefaults.set(newValue, forKey: Key.dynamicYAxisEnabled)
+        }
+    }
+    
+    public var chartHistoryDurationHours: Double {
+        get {
+            let val = userDefaults.double(forKey: Key.chartHistoryDurationHours)
+            return val > 0 ? val : Self.defaultChartHistoryDurationHours
+        }
+        set {
+            userDefaults.set(newValue, forKey: Key.chartHistoryDurationHours)
         }
     }
     
@@ -242,6 +254,7 @@ public final class SharedStorage {
         userDefaults.removeObject(forKey: Key.targetHigh)
         userDefaults.removeObject(forKey: Key.lastSyncTimestamp)
         userDefaults.removeObject(forKey: Key.dynamicYAxisEnabled)
+        userDefaults.removeObject(forKey: Key.chartHistoryDurationHours)
         userDefaults.removeObject(forKey: Key.widgetTapAction)
         userDefaults.removeObject(forKey: Key.widgetTapCustomURL)
         userDefaults.removeObject(forKey: Key.insulinShortcutName)

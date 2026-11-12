@@ -12,7 +12,10 @@ public struct SettingsView: View {
         NavigationView {
             Form {
                 // MARK: - Lock Screen Widget Options
-                Section(header: Text("Lock Screen Widget")) {
+                Section(
+                    header: Text("Lock Screen Widget"),
+                    footer: Text("Calibrating the Y-axis zooms the vertical scale to recent readings. Longer time windows compress the horizontal axis, matching the steepness of the FreeStyle Libre curve.")
+                ) {
                     Toggle(isOn: Binding(
                         get: { viewModel.isDynamicYAxisEnabled },
                         set: { viewModel.setDynamicYAxisEnabled($0) }
@@ -27,6 +30,30 @@ public struct SettingsView: View {
                             }
                         } icon: {
                             Image(systemName: "chart.xyaxis.line")
+                                .foregroundColor(.accentColor)
+                        }
+                    }
+                    
+                    Picker(selection: Binding(
+                        get: { viewModel.chartHistoryDurationHours },
+                        set: { viewModel.setChartHistoryDurationHours($0) }
+                    )) {
+                        Text("2 Hours").tag(2.0)
+                        Text("3 Hours (Default)").tag(3.0)
+                        Text("4 Hours").tag(4.0)
+                        Text("6 Hours").tag(6.0)
+                        Text("12 Hours").tag(12.0)
+                    } label: {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Chart Time Window")
+                                    .font(.body)
+                                Text("Visible duration on widget chart")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "clock.arrow.circlepath")
                                 .foregroundColor(.accentColor)
                         }
                     }

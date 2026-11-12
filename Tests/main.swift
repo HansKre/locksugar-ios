@@ -370,12 +370,20 @@ runTest("SharedStorage.historyAndTargets") {
     storage.isDynamicYAxisEnabled = true
     assertEqual(storage.isDynamicYAxisEnabled, true)
     
+    // Test chart history duration setting
+    assertEqual(storage.chartHistoryDurationHours, 3.0) // Default 3.0
+    storage.chartHistoryDurationHours = 6.0
+    assertEqual(storage.chartHistoryDurationHours, 6.0)
+    storage.chartHistoryDurationHours = 12.0
+    assertEqual(storage.chartHistoryDurationHours, 12.0)
+    
     // Clear all
     storage.clearAll()
     assertTrue(storage.cachedGlucoseHistory.isEmpty)
     assertTrue(storage.targetLow == nil)
     assertTrue(storage.targetHigh == nil)
     assertTrue(storage.isDynamicYAxisEnabled == true)
+    assertEqual(storage.chartHistoryDurationHours, 3.0)
 }
 
 // MARK: - Client & Network Flow Tests

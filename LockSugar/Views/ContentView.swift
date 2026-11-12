@@ -163,7 +163,7 @@ public struct ContentView: View {
             .cornerRadius(16)
             
             // Chart Settings
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 14) {
                 Toggle(isOn: Binding(
                     get: { viewModel.isDynamicYAxisEnabled },
                     set: { viewModel.setDynamicYAxisEnabled($0) }
@@ -177,6 +177,30 @@ public struct ContentView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
+                }
+                
+                Divider()
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Chart Time Window")
+                            .font(.subheadline.bold())
+                        Spacer()
+                        Picker("Chart Time Window", selection: Binding(
+                            get: { viewModel.chartHistoryDurationHours },
+                            set: { viewModel.setChartHistoryDurationHours($0) }
+                        )) {
+                            Text("2 Hours").tag(2.0)
+                            Text("3 Hours (Default)").tag(3.0)
+                            Text("4 Hours").tag(4.0)
+                            Text("6 Hours").tag(6.0)
+                            Text("12 Hours").tag(12.0)
+                        }
+                        .pickerStyle(.menu)
+                    }
+                    Text("Longer windows compress time horizontally, matching Libre 3's high curve steepness.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
             .padding(16)

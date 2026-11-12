@@ -15,6 +15,7 @@ public final class AppViewModel: ObservableObject {
     @Published public var showingInstructions: Bool = false
     @Published public var showingSettings: Bool = false
     @Published public var isDynamicYAxisEnabled: Bool = true
+    @Published public var chartHistoryDurationHours: Double = SharedStorage.defaultChartHistoryDurationHours
     @Published public var widgetTapAction: SharedStorage.WidgetTapActionOption = .libre3Direct
     @Published public var widgetTapCustomURL: String = ""
     @Published public var insulinShortcutName: String = SharedStorage.defaultInsulinShortcutName
@@ -41,6 +42,7 @@ public final class AppViewModel: ObservableObject {
         }
         self.lastReading = storage.cachedGlucoseReading
         self.isDynamicYAxisEnabled = storage.isDynamicYAxisEnabled
+        self.chartHistoryDurationHours = storage.chartHistoryDurationHours
         self.widgetTapAction = storage.widgetTapAction
         self.widgetTapCustomURL = storage.widgetTapCustomURL
         self.insulinShortcutName = storage.insulinShortcutName
@@ -138,6 +140,14 @@ public final class AppViewModel: ObservableObject {
         #endif
     }
     
+    public func setChartHistoryDurationHours(_ hours: Double) {
+        self.chartHistoryDurationHours = hours
+        storage.chartHistoryDurationHours = hours
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
+        #endif
+    }
+    
     public func setWidgetTapAction(_ action: SharedStorage.WidgetTapActionOption, customURL: String? = nil) {
         self.widgetTapAction = action
         storage.widgetTapAction = action
@@ -176,6 +186,7 @@ public final class AppViewModel: ObservableObject {
         self.lastReading = nil
         self.isConnected = false
         self.errorMessage = nil
+        self.chartHistoryDurationHours = SharedStorage.defaultChartHistoryDurationHours
         self.widgetTapAction = .libre3Direct
         self.widgetTapCustomURL = ""
         self.insulinShortcutName = SharedStorage.defaultInsulinShortcutName

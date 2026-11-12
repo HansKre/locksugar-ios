@@ -488,10 +488,15 @@ public struct GlucoseReading: Codable, Equatable {
         )
     }
     
-    /// Realistic 3-hour history mock for widget preview matching the screenshot.
+    /// Realistic history mock for widget preview matching the Libre 3 curve.
     public static var previewHistory: [GlucoseReading] {
         let now = Date()
-        let values: [Double] = [135, 130, 128, 125, 122, 120, 124, 122, 118, 115, 114, 112]
+        // 12 hours of 15-minute intervals ending in a steep crash to ~97
+        let values: [Double] = [
+            110, 112, 115, 114, 108, 102, 98, 96, 105, 120, 125, 118, 128, 138, 155, 166,
+            165, 158, 160, 162, 160, 160, 162, 158, 160, 164, 172, 180, 195, 210, 218, 220,
+            222, 228, 235, 240, 242, 248, 253, 250, 242, 230, 210, 185, 160, 135, 115, 102, 97
+        ]
         return values.enumerated().map { index, val in
             let minutesAgo = Double((values.count - 1 - index) * 15)
             return GlucoseReading(
@@ -499,7 +504,7 @@ public struct GlucoseReading: Codable, Equatable {
                 valueInMgPerDl: val,
                 glucoseUnits: .mgPerDl,
                 timestamp: now.addingTimeInterval(-minutesAgo * 60),
-                trendArrow: index == values.count - 1 ? 3 : nil
+                trendArrow: index == values.count - 1 ? 5 : nil
             )
         }
     }

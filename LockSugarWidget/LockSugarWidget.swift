@@ -10,6 +10,7 @@ public struct GlucoseEntry: TimelineEntry {
     public let targetLow: Double
     public let targetHigh: Double
     public let isDynamicYAxisEnabled: Bool
+    public let historyDurationHours: Double
     public let widgetURL: URL?
     public let insulinTimerURL: URL?
     
@@ -26,6 +27,7 @@ public struct GlucoseEntry: TimelineEntry {
         targetLow: Double = GlucoseZone.defaultTargetLow,
         targetHigh: Double = GlucoseZone.defaultTargetHigh,
         isDynamicYAxisEnabled: Bool = true,
+        historyDurationHours: Double = SharedStorage.defaultChartHistoryDurationHours,
         widgetURL: URL? = nil,
         insulinTimerURL: URL? = nil
     ) {
@@ -37,6 +39,7 @@ public struct GlucoseEntry: TimelineEntry {
         self.targetLow = targetLow
         self.targetHigh = targetHigh
         self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
+        self.historyDurationHours = historyDurationHours
         self.widgetURL = widgetURL
         self.insulinTimerURL = insulinTimerURL
     }
@@ -66,6 +69,7 @@ public struct GlucoseTimelineProvider: TimelineProvider {
             targetLow: storage.targetLow ?? GlucoseZone.defaultTargetLow,
             targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh,
             isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled,
+            historyDurationHours: storage.chartHistoryDurationHours,
             widgetURL: storage.widgetLaunchURL,
             insulinTimerURL: storage.insulinTimerLaunchURL
         )
@@ -88,6 +92,7 @@ public struct GlucoseTimelineProvider: TimelineProvider {
             targetLow: storage.targetLow ?? GlucoseZone.defaultTargetLow,
             targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh,
             isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled,
+            historyDurationHours: storage.chartHistoryDurationHours,
             widgetURL: storage.widgetLaunchURL,
             insulinTimerURL: storage.insulinTimerLaunchURL
         )
@@ -117,6 +122,7 @@ public struct GlucoseTimelineProvider: TimelineProvider {
                 targetLow: storage.targetLow ?? GlucoseZone.defaultTargetLow,
                 targetHigh: storage.targetHigh ?? GlucoseZone.defaultTargetHigh,
                 isDynamicYAxisEnabled: storage.isDynamicYAxisEnabled,
+                historyDurationHours: storage.chartHistoryDurationHours,
                 widgetURL: storage.widgetLaunchURL,
                 insulinTimerURL: storage.insulinTimerLaunchURL
             )
@@ -166,6 +172,7 @@ struct LockSugarWidgetEntryView: View {
                     targetLow: entry.targetLow,
                     targetHigh: entry.targetHigh,
                     isDynamicYAxisEnabled: entry.isDynamicYAxisEnabled,
+                    historyDurationHours: entry.historyDurationHours,
                     insulinTimerURL: entry.insulinTimerURL,
                     libre3URL: entry.widgetURL,
                     useZoneColors: false
@@ -186,7 +193,8 @@ struct LockSugarWidgetEntryView: View {
                     forecast: entry.forecast,
                     targetLow: entry.targetLow,
                     targetHigh: entry.targetHigh,
-                    isDynamicYAxisEnabled: entry.isDynamicYAxisEnabled
+                    isDynamicYAxisEnabled: entry.isDynamicYAxisEnabled,
+                    historyDurationHours: entry.historyDurationHours
                 )
             default:
                 LockSugarCircularView(reading: entry.reading, delta: entry.delta)
