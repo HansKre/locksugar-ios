@@ -674,6 +674,23 @@ runTest("BluetoothBatteryMonitor.parseBatteryLevel") {
     ]
     assertEqual(BluetoothBatteryMonitor.parseBatteryLevel(from: invalidData), nil)
 }
+
+runTest("BluetoothBatteryMonitor.diagnosticLogs") {
+    let monitor = BluetoothBatteryMonitor(storage: SharedStorage(userDefaults: UserDefaults(suiteName: "test_ble_logs_\(UUID().uuidString)")!))
+    monitor.clearLogs()
+    monitor.log("Test log entry 1")
+    monitor.log("Test log entry 2")
+    
+    // Allow main queue async dispatch
+    RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+    assertTrue(monitor.diagnosticLogs.count >= 2)
+    assertTrue(monitor.logsAsText.contains("Test log entry 1"))
+    assertTrue(monitor.logsAsText.contains("Test log entry 2"))
+    
+    monitor.clearLogs()
+    RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+    assertEqual(monitor.diagnosticLogs.count, 0)
+}
 #endif
 
 runTest("SharedStorage.headphoneBatteryAndToggle") {

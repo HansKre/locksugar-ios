@@ -255,12 +255,7 @@ public enum GlucoseForecastCalculator {
             let futureTimestamp = lastTimestamp.addingTimeInterval(elapsedSeconds)
             
             // Damped change: integral of v0 * exp(-lambda * t) = v0 * (1 - exp(-lambda * t)) / lambda
-            let dampedDelta: Double
-            if dampingLambda > 0.0001 {
-                dampedDelta = effectiveSlope * ((1.0 - exp(-dampingLambda * elapsedMinutes)) / dampingLambda)
-            } else {
-                dampedDelta = effectiveSlope * elapsedMinutes
-            }
+            let dampedDelta = effectiveSlope * ((1.0 - exp(-dampingLambda * elapsedMinutes)) / dampingLambda)
             
             var projectedValue = lastValue + dampedDelta
             projectedValue = round(max(40.0, min(400.0, projectedValue)))

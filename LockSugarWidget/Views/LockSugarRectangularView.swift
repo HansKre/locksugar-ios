@@ -120,15 +120,13 @@ public struct LockSugarRectangularView: View {
                 
                 Spacer()
                 
-                // Right: Headphone Battery % (if enabled and connected)
-                if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected {
+                // Right: Headphone Battery % (only if enabled, connected, and battery percentage is available)
+                if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected, let pct = headphone.formattedPercentage {
                     HStack(spacing: 2) {
                         Image(systemName: "headphones")
                             .font(.system(size: 9, weight: .semibold))
-                        if let pct = headphone.formattedPercentage {
-                            Text(pct)
-                                .font(.system(size: 10, weight: .medium, design: .rounded))
-                        }
+                        Text(pct)
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
                     }
                     .foregroundColor(.secondary)
                     .widgetAccentable()
@@ -141,14 +139,12 @@ public struct LockSugarRectangularView: View {
                     .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundColor(.secondary)
                 Spacer()
-                if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected {
+                if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected, let pct = headphone.formattedPercentage {
                     HStack(spacing: 2) {
                         Image(systemName: "headphones")
                             .font(.system(size: 9, weight: .semibold))
-                        if let pct = headphone.formattedPercentage {
-                            Text(pct)
-                                .font(.system(size: 10, weight: .medium, design: .rounded))
-                        }
+                        Text(pct)
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
                     }
                     .foregroundColor(.secondary)
                     .widgetAccentable()
@@ -190,12 +186,8 @@ public struct LockSugarRectangularChartView: View {
         let lineColor = reading?.zoneColor ?? .glucoseNormal
         
         Chart {
-            // Target Range reference boundaries
+            // Target Range lower boundary
             RuleMark(y: .value("TargetLow", targetLow))
-                .lineStyle(StrokeStyle(lineWidth: 0.8, dash: [2, 2]))
-                .foregroundStyle(Color.secondary.opacity(0.35))
-            
-            RuleMark(y: .value("TargetHigh", targetHigh))
                 .lineStyle(StrokeStyle(lineWidth: 0.8, dash: [2, 2]))
                 .foregroundStyle(Color.secondary.opacity(0.35))
             
@@ -232,6 +224,8 @@ public struct LockSugarRectangularChartView: View {
         }
         .chartXAxis {
             AxisMarks(values: .stride(by: .hour, count: 1)) { _ in
+                AxisGridLine(stroke: StrokeStyle(lineWidth: 0.8, dash: [2, 2]))
+                    .foregroundStyle(Color.secondary.opacity(0.35))
                 AxisValueLabel(format: Date.FormatStyle().hour(.twoDigits(amPM: .omitted)).minute(.twoDigits))
                     .font(.system(size: 8, weight: .regular, design: .rounded))
                     .foregroundStyle(Color.secondary)

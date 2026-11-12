@@ -200,6 +200,57 @@ public struct SettingsView: View {
                         }
                     }
                 }
+                
+                // MARK: - Bluetooth Diagnostics
+                Section(
+                    header: Text("Bluetooth Diagnostics"),
+                    footer: Text("Live debug output from CoreBluetooth and audio hardware probes. Tap 'Copy Logs' to copy the logs and share them.")
+                ) {
+                    HStack {
+                        Button(action: {
+                            batteryMonitor.scanNow()
+                        }) {
+                            Label(batteryMonitor.isScanning ? "Scanning..." : "Scan", systemImage: "arrow.clockwise")
+                        }
+                        .disabled(batteryMonitor.isScanning)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            #if canImport(UIKit)
+                            UIPasteboard.general.string = batteryMonitor.logsAsText
+                            #endif
+                        }) {
+                            Label("Copy Logs", systemImage: "doc.on.doc")
+                        }
+                        .disabled(batteryMonitor.diagnosticLogs.isEmpty)
+                        
+                        Spacer()
+                        
+                        Button(role: .destructive, action: {
+                            batteryMonitor.clearLogs()
+                        }) {
+                            Label("Clear", systemImage: "trash")
+                        }
+                    }
+                    .buttonStyle(.borderless)
+                    
+                    if batteryMonitor.diagnosticLogs.isEmpty {
+                        Text("No logs yet. Tap 'Scan' to start discovery.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    } else {
+                        ScrollView {
+                            Text(batteryMonitor.logsAsText)
+                                .font(.system(size: 10, weight: .regular, design: .monospaced))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(4)
+                        }
+                        .frame(maxHeight: 220)
+                        .background(Color(UIColor.tertiarySystemBackground))
+                        .cornerRadius(6)
+                    }
+                }
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
