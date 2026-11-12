@@ -568,4 +568,144 @@ runTest("GlucoseReading.deltaCalculation") {
     assertEqual(GlucoseReading.formatDelta(deltaEmpty), "--")
 }
 
+runTest("HeadphoneBatteryInfo.formattingAndCodable") {
+    let connected = HeadphoneBatteryInfo(isConnected: true, batteryLevel: 85, deviceName: "AirPods Pro")
+    assertTrue(connected.isConnected)
+    assertEqual(connected.batteryLevel, 85)
+    assertEqual(connected.deviceName, "AirPods Pro")
+    assertEqual(connected.formattedPercentage, "85%")
+    
+    let noBattery = HeadphoneBatteryInfo(isConnected: true, batteryLevel: nil, deviceName: "Bluetooth Speaker")
+    assertTrue(noBattery.isConnected)
+    assertEqual(noBattery.formattedPercentage, nil)
+    
+    let disconnected = HeadphoneBatteryInfo(isConnected: false, batteryLevel: nil, deviceName: nil)
+    assertFalse(disconnected.isConnected)
+    assertEqual(disconnected.formattedPercentage, nil)
+    
+    // Codable verification
+    let encoder = JSONEncoder()
+    let decoder = JSONDecoder()
+    let data = try encoder.encode(connected)
+    let decoded = try decoder.decode(HeadphoneBatteryInfo.self, from: data)
+    assertEqual(decoded, connected)
+    assertEqual(decoded.formattedPercentage, "85%")
+}
+
+runTest("SharedStorage.headphoneBatteryAndToggle") {
+    let defaults = UserDefaults(suiteName: "test_suite_headphone_\(UUID().uuidString)")!
+    let storage = SharedStorage(userDefaults: defaults)
+    
+    // 1. Default toggle is true
+    assertTrue(storage.showHeadphoneBattery)
+    
+    // 2. Change toggle to false
+    storage.showHeadphoneBattery = false
+    assertFalse(storage.showHeadphoneBattery)
+    
+    // 3. Re-enable toggle
+    storage.showHeadphoneBattery = true
+    assertTrue(storage.showHeadphoneBattery)
+    
+    // 4. Default headphone info is nil
+    assertEqual(storage.headphoneBatteryInfo, nil)
+    
+    // 5. Update headphone battery (connected)
+    storage.updateHeadphoneBattery(isConnected: true, batteryLevel: 78, deviceName: "Bose QC45")
+    let info = storage.headphoneBatteryInfo
+    assertTrue(info != nil)
+    assertTrue(info?.isConnected == true)
+    assertEqual(info?.batteryLevel, 78)
+    assertEqual(info?.deviceName, "Bose QC45")
+    assertEqual(info?.formattedPercentage, "78%")
+    
+    // 6. Update headphone battery (disconnected)
+    storage.updateHeadphoneBattery(isConnected: false, batteryLevel: nil, deviceName: nil)
+    let discInfo = storage.headphoneBatteryInfo
+    assertTrue(discInfo != nil)
+    assertFalse(discInfo?.isConnected == true)
+    assertEqual(discInfo?.formattedPercentage, nil)
+    
+    // 7. Clear all removes headphone info
+    storage.clearAll()
+    assertEqual(storage.headphoneBatteryInfo, nil)
+}
+
+runTest("SharedStorage.widgetTapActionAndURL") {
+    let defaults = UserDefaults(suiteName: "test_suite_widget_url_\(UUID().uuidString)")!
+    let storage = SharedStorage(userDefaults: defaults)
+    
+    // 1. Default is .libre3Direct
+    assertEqual(storage.widgetTapAction, .libre3Direct)
+    assertEqual(storage.resolvedWidgetURL, URL(string: "itms-apps://apps.apple.com/app/id1525101160"))
+    
+    // 2. Change to .libre3Shortcut
+    storage.widgetTapAction = .libre3Shortcut
+    assertEqual(storage.widgetTapAction, .libre3Shortcut)
+    assertEqual(storage.resolvedWidgetURL, URL(string: "shortcuts://run-shortcut?name=Libre%203"))
+    
+    // 3. Change to .lockSugar
+    storage.widgetTapAction = .lockSugar
+    assertEqual(storage.widgetTapAction, .lockSugar)
+    assertEqual(storage.resolvedWidgetURL, URL(string: "locksugar://"))
+    
+    // 4. Change to .custom
+    storage.widgetTapAction = .custom
+    storage.widgetTapCustomURL = "mycgm://action"
+    assertEqual(storage.widgetTapAction, .custom)
+    assertEqual(storage.resolvedWidgetURL, URL(string: "mycgm://action"))
+    
+    // 5. Clear all restores default
+    storage.clearAll()
+    assertEqual(storage.widgetTapAction, .libre3Direct)
+    assertEqual(storage.widgetTapCustomURL, "")
+    assertEqual(storage.resolvedWidgetURL, URL(string: "itms-apps://apps.apple.com/app/id1525101160"))
+}
+
+runTest("GlucoseReading.deltaWithTrendArrowFormatting") {
+    let now = Date()
+    let reading1 = GlucoseReading(value: 112, valueInMgPerDl: 112, glucoseUnits: .mgPerDl, timestamp: now, trendArrow: 3)
+    let delta1 = 5.0
+    let text1 = "\(reading1.formattedValue) \(reading1.trendArrowSymbol) \(GlucoseReading.formatDelta(delta1))"
+    assertEqual(text1, "112 → +5")
+    
+    let reading2 = GlucoseReading(value: 95, valueInMgPerDl: 95, glucoseUnits: .mgPerDl, timestamp: now, trendArrow: 2)
+    let delta2 = -3.0
+    let text2 = "\(reading2.formattedValue) \(reading2.trendArrowSymbol) \(GlucoseReading.formatDelta(delta2))"
+    assertEqual(text2, "95 ↘ -3")
+    
+    let reading3 = GlucoseReading(value: 150, valueInMgPerDl: 150, glucoseUnits: .mgPerDl, timestamp: now, trendArrow: 5)
+    let delta3: Double? = nil
+    let text3 = delta3 != nil ? "\(reading3.formattedValue) \(reading3.trendArrowSymbol) \(GlucoseReading.formatDelta(delta3))" : "\(reading3.formattedValue) \(reading3.trendArrowSymbol)"
+    assertEqual(text3, "150 ↑")
+}
+
+runTest("GlucoseReading.trendArrowDefinitions") {
+    let defs = TrendArrowDefinition.allDefinitions
+    assertEqual(defs.count, 5)
+    
+    // Check mapping 5 -> ↑
+    let def5 = TrendArrowDefinition.definition(for: 5)
+    assertEqual(def5.symbol, "↑")
+    assertEqual(def5.title, "Rising Quickly")
+    assertTrue(def5.rateMgPerDl.contains("> 2 mg/dL"))
+    assertTrue(def5.rateMmolPerL.contains("> 0.11 mmol/L"))
+    
+    // Check mapping 3 -> → (stable)
+    let def3 = TrendArrowDefinition.definition(for: 3)
+    assertEqual(def3.symbol, "→")
+    assertEqual(def3.title, "Changing Slowly / Stable")
+    assertTrue(def3.rateMgPerDl.contains("< 1 mg/dL"))
+    
+    // Check mapping 1 -> ↓
+    let def1 = TrendArrowDefinition.definition(for: 1)
+    assertEqual(def1.symbol, "↓")
+    assertEqual(def1.title, "Falling Quickly")
+    
+    // Fallback for nil or unknown maps to stable (3)
+    let defNil = TrendArrowDefinition.definition(for: nil)
+    assertEqual(defNil.symbol, "→")
+    assertEqual(defNil.id, 3)
+}
+
 print("=== All Tests Passed Successfully ===")

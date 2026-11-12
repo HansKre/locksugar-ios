@@ -436,3 +436,88 @@ public enum TimelineScheduler {
         return targetReload
     }
 }
+
+// MARK: - Trend Arrow Definition
+
+/// Abbott FreeStyle Libre Official Medical Trend Arrow Definitions.
+/// Represents rate of change (velocity per minute) and 15-minute projected shift.
+public struct TrendArrowDefinition: Identifiable, Equatable {
+    public let id: Int // 1 to 5 matching LibreLinkUp trendArrow integer
+    public let symbol: String
+    public let title: String
+    public let rateMgPerDl: String
+    public let rateMmolPerL: String
+    public let fifteenMinuteChange: String
+    public let description: String
+    
+    public init(
+        id: Int,
+        symbol: String,
+        title: String,
+        rateMgPerDl: String,
+        rateMmolPerL: String,
+        fifteenMinuteChange: String,
+        description: String
+    ) {
+        self.id = id
+        self.symbol = symbol
+        self.title = title
+        self.rateMgPerDl = rateMgPerDl
+        self.rateMmolPerL = rateMmolPerL
+        self.fifteenMinuteChange = fifteenMinuteChange
+        self.description = description
+    }
+    
+    public static let allDefinitions: [TrendArrowDefinition] = [
+        TrendArrowDefinition(
+            id: 5,
+            symbol: "↑",
+            title: "Rising Quickly",
+            rateMgPerDl: "> 2 mg/dL per min",
+            rateMmolPerL: "> 0.11 mmol/L per min",
+            fifteenMinuteChange: "> +30 mg/dL (> +1.7 mmol/L)",
+            description: "Glucose is increasing rapidly. Useful to consider when evaluating meal or insulin timing."
+        ),
+        TrendArrowDefinition(
+            id: 4,
+            symbol: "↗",
+            title: "Rising",
+            rateMgPerDl: "1 – 2 mg/dL per min",
+            rateMmolPerL: "0.06 – 0.11 mmol/L per min",
+            fifteenMinuteChange: "+15 to +30 mg/dL (+0.8 to +1.7 mmol/L)",
+            description: "Glucose is rising moderately. Useful for monitoring post-meal trends."
+        ),
+        TrendArrowDefinition(
+            id: 3,
+            symbol: "→",
+            title: "Changing Slowly / Stable",
+            rateMgPerDl: "< 1 mg/dL per min",
+            rateMmolPerL: "< 0.06 mmol/L per min",
+            fifteenMinuteChange: "< 15 mg/dL (< 0.8 mmol/L)",
+            description: "Glucose is steady or changing slowly. A difference of +5 or -3 mg/dL over a 15-minute gap is only ~0.2 to 0.3 mg/dL/min, which Abbott officially classifies as stable (→)."
+        ),
+        TrendArrowDefinition(
+            id: 2,
+            symbol: "↘",
+            title: "Falling",
+            rateMgPerDl: "1 – 2 mg/dL per min",
+            rateMmolPerL: "0.06 – 0.11 mmol/L per min",
+            fifteenMinuteChange: "-15 to -30 mg/dL (-0.8 to -1.7 mmol/L)",
+            description: "Glucose is decreasing moderately. Helps anticipate reaching target lower boundaries."
+        ),
+        TrendArrowDefinition(
+            id: 1,
+            symbol: "↓",
+            title: "Falling Quickly",
+            rateMgPerDl: "> 2 mg/dL per min",
+            rateMmolPerL: "> 0.11 mmol/L per min",
+            fifteenMinuteChange: "> -30 mg/dL (> -1.7 mmol/L)",
+            description: "Glucose is dropping rapidly. Critical warning indicator to help proactively avoid hypoglycemia."
+        )
+    ]
+    
+    public static func definition(for trendArrow: Int?) -> TrendArrowDefinition {
+        let targetId = trendArrow ?? 3
+        return allDefinitions.first(where: { $0.id == targetId }) ?? allDefinitions[2]
+    }
+}

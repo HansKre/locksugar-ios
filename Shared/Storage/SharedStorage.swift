@@ -18,6 +18,10 @@ public final class SharedStorage {
         public static let targetHigh = "locksugar_target_high"
         public static let lastSyncTimestamp = "locksugar_last_sync_timestamp"
         public static let dynamicYAxisEnabled = "locksugar_dynamic_yaxis_enabled"
+        public static let showHeadphoneBattery = "locksugar_show_headphone_battery"
+        public static let headphoneBatteryInfo = "locksugar_headphone_battery_info"
+        public static let widgetTapAction = "locksugar_widget_tap_action"
+        public static let widgetTapCustomURL = "locksugar_widget_tap_custom_url"
     }
     
     public let userDefaults: UserDefaults
@@ -119,6 +123,111 @@ public final class SharedStorage {
         }
     }
     
+    public var showHeadphoneBattery: Bool {
+        get {
+            if userDefaults.object(forKey: Key.showHeadphoneBattery) == nil {
+                return true // default enabled
+            }
+            return userDefaults.bool(forKey: Key.showHeadphoneBattery)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Key.showHeadphoneBattery)
+        }
+    }
+    
+    public var headphoneBatteryInfo: HeadphoneBatteryInfo? {
+        get {
+            guard let data = userDefaults.data(forKey: Key.headphoneBatteryInfo) else { return nil }
+            return try? JSONDecoder().decode(HeadphoneBatteryInfo.self, from: data)
+        }
+        set {
+            if let newValue = newValue, let data = try? JSONEncoder().encode(newValue) {
+                userDefaults.set(data, forKey: Key.headphoneBatteryInfo)
+            } else {
+                userDefaults.removeObject(forKey: Key.headphoneBatteryInfo)
+            }
+        }
+    }
+    
+    public func updateHeadphoneBattery(isConnected: Bool, batteryLevel: Int?, deviceName: String?) {
+        if isConnected {
+            self.headphoneBatteryInfo = HeadphoneBatteryInfo(
+                isConnected: true,
+                batteryLevel: batteryLevel,
+                deviceName: deviceName,
+                updatedAt: Date()
+            )
+        } else {
+            self.headphoneBatteryInfo = HeadphoneBatteryInfo(
+                isConnected: false,
+                batteryLevel: nil,
+                deviceName: nil,
+                updatedAt: Date()
+            )
+        }
+    }
+    
+    // MARK: - Widget Tap Action
+    
+    public enum WidgetTapActionOption: String, CaseIterable, Identifiable {
+        case libre3Direct = "itms-apps://apps.apple.com/app/id1525101160"
+        case libre3Shortcut = "shortcuts://run-shortcut?name=Libre%203"
+        case lockSugar = "locksugar://"
+        case custom = "custom"
+        
+        public var id: String { rawValue }
+        
+        public var displayName: String {
+            switch self {
+            case .libre3Direct:
+                return "FreeStyle Libre 3 (App Store / Direct)"
+            case .libre3Shortcut:
+                return "FreeStyle Libre 3 (Apple Shortcut: Libre 3)"
+            case .lockSugar:
+                return "LockSugar App"
+            case .custom:
+                return "Custom URL / Scheme"
+            }
+        }
+    }
+    
+    public var widgetTapAction: WidgetTapActionOption {
+        get {
+            guard let raw = userDefaults.string(forKey: Key.widgetTapAction),
+                  let option = WidgetTapActionOption(rawValue: raw) else {
+                return .libre3Direct
+            }
+            return option
+        }
+        set {
+            userDefaults.set(newValue.rawValue, forKey: Key.widgetTapAction)
+        }
+    }
+    
+    public var widgetTapCustomURL: String {
+        get {
+            userDefaults.string(forKey: Key.widgetTapCustomURL) ?? ""
+        }
+        set {
+            userDefaults.set(newValue, forKey: Key.widgetTapCustomURL)
+        }
+    }
+    
+    /// Resolves the URL to be triggered when tapping the widget.
+    public var resolvedWidgetURL: URL? {
+        switch widgetTapAction {
+        case .libre3Direct:
+            return URL(string: WidgetTapActionOption.libre3Direct.rawValue)
+        case .libre3Shortcut:
+            return URL(string: WidgetTapActionOption.libre3Shortcut.rawValue)
+        case .lockSugar:
+            return URL(string: WidgetTapActionOption.lockSugar.rawValue)
+        case .custom:
+            let trimmed = widgetTapCustomURL.trimmingCharacters(in: .whitespacesAndNewlines)
+            return URL(string: trimmed)
+        }
+    }
+    
     public func clearAll() {
         userDefaults.removeObject(forKey: Key.accountIdHash)
         userDefaults.removeObject(forKey: Key.patientId)
@@ -130,5 +239,8 @@ public final class SharedStorage {
         userDefaults.removeObject(forKey: Key.targetHigh)
         userDefaults.removeObject(forKey: Key.lastSyncTimestamp)
         userDefaults.removeObject(forKey: Key.dynamicYAxisEnabled)
+        userDefaults.removeObject(forKey: Key.headphoneBatteryInfo)
+        userDefaults.removeObject(forKey: Key.widgetTapAction)
+        userDefaults.removeObject(forKey: Key.widgetTapCustomURL)
     }
 }

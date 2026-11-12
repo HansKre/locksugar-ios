@@ -5,6 +5,125 @@ import Charts
 public struct LockSugarRectangularView: View {
     public let reading: GlucoseReading?
     public let history: [GlucoseReading]
+    public let delta: Double?
+    public let forecast: [GlucoseForecastPoint]
+    public let targetLow: Double
+    public let targetHigh: Double
+    public let isDynamicYAxisEnabled: Bool
+    public let headphoneInfo: HeadphoneBatteryInfo?
+    public let showHeadphoneBattery: Bool
+    
+    public init(
+        reading: GlucoseReading?,
+        history: [GlucoseReading] = [],
+        delta: Double? = nil,
+        forecast: [GlucoseForecastPoint] = [],
+        targetLow: Double = GlucoseZone.defaultTargetLow,
+        targetHigh: Double = GlucoseZone.defaultTargetHigh,
+        isDynamicYAxisEnabled: Bool = true,
+        headphoneInfo: HeadphoneBatteryInfo? = nil,
+        showHeadphoneBattery: Bool = true
+    ) {
+        self.reading = reading
+        self.history = history
+        self.delta = delta ?? GlucoseReading.calculateDelta(current: reading, history: history)
+        self.forecast = forecast
+        self.targetLow = targetLow
+        self.targetHigh = targetHigh
+        self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
+        self.headphoneInfo = headphoneInfo
+        self.showHeadphoneBattery = showHeadphoneBattery
+    }
+    
+    public var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            headerView
+            LockSugarRectangularChartView(
+                reading: reading,
+                history: history,
+                forecast: forecast,
+                targetLow: targetLow,
+                targetHigh: targetHigh,
+                isDynamicYAxisEnabled: isDynamicYAxisEnabled
+            )
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+    
+    // MARK: - Header
+    
+    @ViewBuilder
+    private var headerView: some View {
+        if let reading = reading {
+            HStack(alignment: .firstTextBaseline) {
+                // Left: Value & Trend Arrow
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    Text(reading.formattedValue)
+                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                        .foregroundColor(reading.zoneColor)
+                        .widgetAccentable()
+                    
+                    Text(reading.trendArrowSymbol)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(reading.zoneColor)
+                        .widgetAccentable()
+                }
+                
+                Spacer()
+                
+                // Right: Delta, Battery %, Time (all horizontally aligned to the right)
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    if let delta = delta {
+                        Text(GlucoseReading.formatDelta(delta))
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundColor(reading.zoneColor)
+                            .widgetAccentable()
+                    }
+                    
+                    if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected, let pct = headphone.formattedPercentage {
+                        HStack(spacing: 2) {
+                            Image(systemName: "headphones")
+                                .font(.system(size: 9, weight: .semibold))
+                            Text(pct)
+                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                        }
+                        .foregroundColor(.secondary)
+                        .widgetAccentable()
+                    }
+                    
+                    Text(reading.formattedTime)
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .opacity(reading.isStale() ? 0.5 : 1.0)
+        } else {
+            HStack(alignment: .firstTextBaseline) {
+                Text("---")
+                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .foregroundColor(.secondary)
+                Spacer()
+                if showHeadphoneBattery, let headphone = headphoneInfo, headphone.isConnected, let pct = headphone.formattedPercentage {
+                    HStack(spacing: 2) {
+                        Image(systemName: "headphones")
+                            .font(.system(size: 9, weight: .semibold))
+                        Text(pct)
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                    }
+                    .foregroundColor(.secondary)
+                    .widgetAccentable()
+                }
+            }
+            .opacity(0.5)
+        }
+    }
+}
+
+// MARK: - Reusable Rectangular Chart View
+
+public struct LockSugarRectangularChartView: View {
+    public let reading: GlucoseReading?
+    public let history: [GlucoseReading]
     public let forecast: [GlucoseForecastPoint]
     public let targetLow: Double
     public let targetHigh: Double
@@ -27,53 +146,6 @@ public struct LockSugarRectangularView: View {
     }
     
     public var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            headerView
-            chartView
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    }
-    
-    // MARK: - Header
-    
-    @ViewBuilder
-    private var headerView: some View {
-        if let reading = reading {
-            HStack(alignment: .firstTextBaseline) {
-                HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text(reading.formattedValue)
-                        .font(.system(size: 19, weight: .bold, design: .rounded))
-                        .foregroundColor(reading.zoneColor)
-                        .widgetAccentable()
-                    
-                    Text(reading.trendArrowSymbol)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(reading.zoneColor)
-                        .widgetAccentable()
-                }
-                
-                Spacer()
-                
-                Text(reading.formattedTime)
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .foregroundColor(.secondary)
-            }
-            .opacity(reading.isStale() ? 0.5 : 1.0)
-        } else {
-            HStack {
-                Text("---")
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
-                    .foregroundColor(.secondary)
-                Spacer()
-            }
-            .opacity(0.5)
-        }
-    }
-    
-    // MARK: - Chart View
-    
-    @ViewBuilder
-    private var chartView: some View {
         let chartData = prepareChartData()
         let lineColor = reading?.zoneColor ?? .glucoseNormal
         
@@ -242,35 +314,47 @@ public struct LockSugarRectangularView: View {
 public struct LockSugarMediumView: View {
     public let reading: GlucoseReading?
     public let history: [GlucoseReading]
+    public let delta: Double?
     public let forecast: [GlucoseForecastPoint]
     public let targetLow: Double
     public let targetHigh: Double
     public let isDynamicYAxisEnabled: Bool
+    public let headphoneInfo: HeadphoneBatteryInfo?
+    public let showHeadphoneBattery: Bool
     
     public init(
         reading: GlucoseReading?,
         history: [GlucoseReading] = [],
+        delta: Double? = nil,
         forecast: [GlucoseForecastPoint] = [],
         targetLow: Double = GlucoseZone.defaultTargetLow,
         targetHigh: Double = GlucoseZone.defaultTargetHigh,
-        isDynamicYAxisEnabled: Bool = true
+        isDynamicYAxisEnabled: Bool = true,
+        headphoneInfo: HeadphoneBatteryInfo? = nil,
+        showHeadphoneBattery: Bool = true
     ) {
         self.reading = reading
         self.history = history
+        self.delta = delta ?? GlucoseReading.calculateDelta(current: reading, history: history)
         self.forecast = forecast
         self.targetLow = targetLow
         self.targetHigh = targetHigh
         self.isDynamicYAxisEnabled = isDynamicYAxisEnabled
+        self.headphoneInfo = headphoneInfo
+        self.showHeadphoneBattery = showHeadphoneBattery
     }
     
     public var body: some View {
         LockSugarRectangularView(
             reading: reading,
             history: history,
+            delta: delta,
             forecast: forecast,
             targetLow: targetLow,
             targetHigh: targetHigh,
-            isDynamicYAxisEnabled: isDynamicYAxisEnabled
+            isDynamicYAxisEnabled: isDynamicYAxisEnabled,
+            headphoneInfo: headphoneInfo,
+            showHeadphoneBattery: showHeadphoneBattery
         )
         .padding(4)
     }

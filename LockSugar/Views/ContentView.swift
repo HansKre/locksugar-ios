@@ -30,8 +30,22 @@ public struct ContentView: View {
             }
             .navigationTitle("LockSugar")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        viewModel.showingSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .font(.body)
+                    }
+                    .accessibilityLabel("Settings")
+                }
+            }
             .sheet(isPresented: $viewModel.showingInstructions) {
                 WidgetSetupInstructionsView()
+            }
+            .sheet(isPresented: $viewModel.showingSettings) {
+                SettingsView(viewModel: viewModel)
             }
         }
         .navigationViewStyle(.stack)
@@ -195,9 +209,21 @@ public struct ContentView: View {
                 .disabled(viewModel.isLoading)
                 
                 Button {
+                    viewModel.showingSettings = true
+                } label: {
+                    Label("Settings", systemImage: "gearshape")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .foregroundColor(.primary)
+                        .cornerRadius(12)
+                }
+                
+                Button {
                     viewModel.showingInstructions = true
                 } label: {
-                    Label("Widget Setup Guide (Lock Screen & CarPlay)", systemImage: "questionmark.circle.fill")
+                    Label("Setup Guide & Trend Arrows", systemImage: "questionmark.circle.fill")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()

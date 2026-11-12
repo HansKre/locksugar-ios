@@ -6,7 +6,8 @@ public struct WidgetSetupInstructionsView: View {
     
     public enum SetupTab: String, CaseIterable, Identifiable {
         case lockScreen = "Lock Screen"
-        case carPlay = "Apple CarPlay"
+        case carPlay = "CarPlay"
+        case trendArrows = "Trend Arrows"
         
         public var id: String { rawValue }
     }
@@ -18,7 +19,7 @@ public struct WidgetSetupInstructionsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     // Segmented Selector
-                    Picker("Widget Setup", selection: $selectedTab) {
+                    Picker("Guide", selection: $selectedTab) {
                         ForEach(SetupTab.allCases) { tab in
                             Text(tab.rawValue).tag(tab)
                         }
@@ -26,15 +27,18 @@ public struct WidgetSetupInstructionsView: View {
                     .pickerStyle(.segmented)
                     .padding(.top, 4)
                     
-                    if selectedTab == .lockScreen {
+                    switch selectedTab {
+                    case .lockScreen:
                         lockScreenInstructions
-                    } else {
+                    case .carPlay:
                         carPlayInstructions
+                    case .trendArrows:
+                        trendArrowInstructions
                     }
                 }
                 .padding(20)
             }
-            .navigationTitle("Widget Setup Guide")
+            .navigationTitle("Guide & Reference")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -165,5 +169,121 @@ public struct WidgetSetupInstructionsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(UIColor.secondarySystemBackground))
         .cornerRadius(12)
+    }
+    
+    // MARK: - Trend Arrows Instructions & Reference
+    
+    private var trendArrowInstructions: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Abbott Trend Arrow Definitions")
+                    .font(.title2.bold())
+                Text("Official rate-of-change thresholds and clinical projections from Abbott FreeStyle Libre.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            // 5 Trend Arrow Cards
+            VStack(spacing: 12) {
+                ForEach(TrendArrowDefinition.allDefinitions) { item in
+                    arrowCard(for: item)
+                }
+            }
+            
+            // Velocity vs. Delta Deep-Dive Callout
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    Image(systemName: "questionmark.circle.fill")
+                        .foregroundColor(.accentColor)
+                        .font(.title3)
+                    Text("Trend Arrow vs. Delta Value")
+                        .font(.headline)
+                }
+                
+                Text("Why can the arrow be flat (→) even when the delta shows +5?")
+                    .font(.subheadline.bold())
+                    .foregroundColor(.primary)
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .top, spacing: 6) {
+                        Text("•")
+                        Text("**Trend Arrow**: Measures **instantaneous velocity** (rate of change per minute over recent minutes), calculated by Abbott's sensor algorithm.")
+                    }
+                    HStack(alignment: .top, spacing: 6) {
+                        Text("•")
+                        Text("**Delta Value**: Measures the **discrete difference** between your latest reading and the immediately preceding reading.")
+                    }
+                    HStack(alignment: .top, spacing: 6) {
+                        Text("•")
+                        Text("**Why they differ**: A change of +5 mg/dL over a 15-minute gap is only ~0.33 mg/dL/min. Because it is well below Abbott's 1.0 mg/dL/min threshold, the sensor algorithm classifies it as **changing slowly (→)**.")
+                    }
+                }
+                .font(.footnote)
+                .foregroundColor(.secondary)
+            }
+            .padding(16)
+            .background(Color.accentColor.opacity(0.08))
+            .cornerRadius(12)
+        }
+    }
+    
+    private func arrowCard(for item: TrendArrowDefinition) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            // Big Arrow Symbol Badge
+            ZStack {
+                Circle()
+                    .fill(arrowColor(for: item.id).opacity(0.15))
+                    .frame(width: 48, height: 48)
+                Text(item.symbol)
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(arrowColor(for: item.id))
+            }
+            
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(item.title)
+                        .font(.headline)
+                    Spacer()
+                    Text(item.fifteenMinuteChange)
+                        .font(.caption.bold())
+                        .foregroundColor(.secondary)
+                }
+                
+                HStack(spacing: 8) {
+                    Text(item.rateMgPerDl)
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(arrowColor(for: item.id).opacity(0.12))
+                        .foregroundColor(arrowColor(for: item.id))
+                        .cornerRadius(6)
+                    
+                    Text(item.rateMmolPerL)
+                        .font(.caption.weight(.medium))
+                        .foregroundColor(.secondary)
+                }
+                
+                Text(item.description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 2)
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(UIColor.secondarySystemBackground))
+        .cornerRadius(12)
+    }
+    
+    private func arrowColor(for id: Int) -> Color {
+        switch id {
+        case 5: return .red
+        case 4: return .orange
+        case 3: return .green
+        case 2: return .orange
+        case 1: return .red
+        default: return .primary
+        }
     }
 }

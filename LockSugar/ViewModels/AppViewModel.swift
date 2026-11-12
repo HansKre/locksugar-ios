@@ -13,7 +13,12 @@ public final class AppViewModel: ObservableObject {
     @Published public var lastReading: GlucoseReading? = nil
     @Published public var isConnected: Bool = false
     @Published public var showingInstructions: Bool = false
+    @Published public var showingSettings: Bool = false
     @Published public var isDynamicYAxisEnabled: Bool = true
+    @Published public var showHeadphoneBattery: Bool = true
+    @Published public var headphoneInfo: HeadphoneBatteryInfo? = nil
+    @Published public var widgetTapAction: SharedStorage.WidgetTapActionOption = .libre3Direct
+    @Published public var widgetTapCustomURL: String = ""
     
     public let client: LibreLinkUpClient
     public let keychain: KeychainManaging
@@ -37,6 +42,10 @@ public final class AppViewModel: ObservableObject {
         }
         self.lastReading = storage.cachedGlucoseReading
         self.isDynamicYAxisEnabled = storage.isDynamicYAxisEnabled
+        self.showHeadphoneBattery = storage.showHeadphoneBattery
+        self.headphoneInfo = storage.headphoneBatteryInfo
+        self.widgetTapAction = storage.widgetTapAction
+        self.widgetTapCustomURL = storage.widgetTapCustomURL
         let hasCredentials = (keychain.get(KeychainHelper.Key.email) != nil && keychain.get(KeychainHelper.Key.password) != nil)
         let hasToken = (keychain.get(KeychainHelper.Key.jwtToken) != nil || keychain.get(KeychainHelper.Key.password) != nil) && storage.patientId != nil
         self.isConnected = hasCredentials || hasToken
@@ -131,6 +140,38 @@ public final class AppViewModel: ObservableObject {
         #endif
     }
     
+    public func setShowHeadphoneBattery(_ enabled: Bool) {
+        self.showHeadphoneBattery = enabled
+        storage.showHeadphoneBattery = enabled
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
+        #endif
+    }
+    
+    public func setWidgetTapAction(_ action: SharedStorage.WidgetTapActionOption, customURL: String? = nil) {
+        self.widgetTapAction = action
+        storage.widgetTapAction = action
+        if let custom = customURL {
+            self.widgetTapCustomURL = custom
+            storage.widgetTapCustomURL = custom
+        }
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
+        #endif
+    }
+    
+    public func setWidgetTapCustomURL(_ url: String) {
+        self.widgetTapCustomURL = url
+        storage.widgetTapCustomURL = url
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")
+        #endif
+    }
+    
+    public func updateHeadphoneInfoFromStorage() {
+        self.headphoneInfo = storage.headphoneBatteryInfo
+    }
+    
     public func disconnect() {
         LiveActivityManager.shared.endLiveActivity()
         keychain.clearAll()
@@ -141,6 +182,8 @@ public final class AppViewModel: ObservableObject {
         self.lastReading = nil
         self.isConnected = false
         self.errorMessage = nil
+        self.widgetTapAction = .libre3Direct
+        self.widgetTapCustomURL = ""
         
         #if canImport(WidgetKit)
         WidgetCenter.shared.reloadTimelines(ofKind: "LockSugarWidget")

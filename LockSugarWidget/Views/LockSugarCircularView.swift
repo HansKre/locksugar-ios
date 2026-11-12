@@ -3,28 +3,37 @@ import WidgetKit
 
 public struct LockSugarCircularView: View {
     public let reading: GlucoseReading?
+    public let delta: Double?
     
-    public init(reading: GlucoseReading?) {
+    public init(reading: GlucoseReading?, delta: Double? = nil) {
         self.reading = reading
+        self.delta = delta
     }
     
     public var body: some View {
         ZStack {
             if let reading = reading {
                 VStack(spacing: 1) {
-                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    HStack(alignment: .firstTextBaseline, spacing: 2) {
                         Text(reading.formattedValue)
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
                             .foregroundColor(reading.zoneColor)
                             .widgetAccentable()
                         
                         Text(reading.trendArrowSymbol)
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(reading.zoneColor)
                             .widgetAccentable()
+                        
+                        if let delta = delta {
+                            Text(GlucoseReading.formatDelta(delta))
+                                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                .foregroundColor(reading.zoneColor)
+                                .widgetAccentable()
+                        }
                     }
                     .lineLimit(1)
-                    .minimumScaleFactor(0.65)
+                    .minimumScaleFactor(0.6)
                     
                     HStack(spacing: 3) {
                         Text(reading.glucoseUnits.label)
